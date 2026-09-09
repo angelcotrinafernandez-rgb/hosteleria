@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma SaaS - Pedidos por QR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#667eea;--primary-dark:#5568d3;--success:#27ae60;--danger:#e74c3c;--warning:#f39c12;--gray:#7f8c8d;--bg:#f5f6fa;--card:#fff;--text:#2c3e50;--border:#e1e5eb;--yellow:#f1c40f;--blue:#3498db;--green:#2ecc71;--purple:#9b59b6;--orange:#e67e22}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.hidden{display:none!important}
+.container{max-width:1200px;margin:0 auto;padding:2rem 1rem}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:2rem 1rem;text-align:center;margin-bottom:2rem}
+.header h1{font-size:2.5rem;margin-bottom:.5rem}
+.header p{font-size:1.1rem;opacity:.95}
+.nav{background:#fff;padding:1rem;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:2rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.nav button{padding:.75rem 1.5rem;border:none;background:var(--primary);color:#fff;border-radius:8px;cursor:pointer;font-size:1rem;font-weight:500;transition:all .2s}
+.nav button:hover{background:var(--primary-dark);transform:translateY(-2px)}
+.nav button.active{background:var(--success)}
+.card{background:#fff;border-radius:16px;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,.08);margin-bottom:1.5rem}
+.card h2{margin-bottom:1.5rem;color:var(--primary)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1rem}
+label{display:flex;flex-direction:column;gap:.3rem;font-size:.9rem;color:var(--gray);font-weight:500}
+input,select,textarea{padding:.8rem;border:2px solid var(--border);border-radius:8px;font-size:1rem;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+.btn{padding:.9rem 1.8rem;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-block;text-align:center;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-secondary{background:#ecf0f1;color:var(--text)}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-block{width:100%}
+.btn-small{padding:.5rem 1rem;font-size:.85rem}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--card);padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.stat-label{color:var(--gray);font-size:.9rem;margin-bottom:.5rem}
+.stat-value{font-size:2rem;font-weight:bold;color:var(--primary)}
+.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.table th,.table td{padding:1rem;text-align:left;border-bottom:1px solid var(--border)}
+.table th{background:#f8f9fa;font-weight:600}
+.badge{padding:.25rem .75rem;border-radius:20px;font-size:.8rem;font-weight:600;display:inline-block}
+.badge-yellow{background:var(--yellow);color:#333}
+.badge-blue{background:var(--blue);color:#fff}
+.badge-green{background:var(--green);color:#fff}
+.badge-gray{background:#95a5a6;color:#fff}
+.badge-purple{background:var(--purple);color:#fff}
+.badge-orange{background:var(--orange);color:#fff}
+.badge-red{background:var(--danger);color:#fff}
+.steps-bar{background:#fff;padding:1rem;display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:2rem}
+.step-dot{width:40px;height:40px;border-radius:50%;background:#ecf0f1;color:var(--gray);display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:all .2s;border:none}
+.step-dot.active{background:var(--primary);color:#fff;transform:scale(1.1)}
+.step-dot.done{background:var(--success);color:#fff}
+.plantillas{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0}
+.plantilla-card{padding:1.5rem;border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .2s}
+.plantilla-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.plantilla-card.selected{border-color:var(--primary);background:#f0f4ff}
+.plantilla-card .icon{font-size:2.5rem;margin-bottom:.5rem}
+.items-list{margin:1rem 0}
+.item-row{display:flex;gap:.5rem;align-items:center;padding:.6rem;background:#f8f9fa;border-radius:8px;margin-bottom:.5rem;flex-wrap:wrap}
+.item-row input{flex:1;padding:.5rem;min-width:100px}
+.item-row button{padding:.5rem .8rem;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer}
+.add-btn{padding:.7rem 1.2rem;background:var(--success);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500;margin-top:.5rem}
+.pedidos-list{display:grid;gap:1rem}
+.pedido-card{background:var(--card);padding:1.25rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid var(--gray);cursor:pointer;transition:transform .2s}
+.pedido-card:hover{transform:translateY(-2px)}
+.pedido-card.estado-pendiente{border-left-color:var(--yellow)}
+.pedido-card.estado-preparando{border-left-color:var(--blue)}
+.pedido-card.estado-listo{border-left-color:var(--green)}
+.pedido-card.estado-entregado{border-left-color:#95a5a6}
+.pedido-card.estado-solicitando_cuenta{border-left-color:var(--orange)}
+.pedido-card.estado-pagado{border-left-color:var(--purple)}
+.pedido-card.estado-cerrado{border-left-color:#34495e}
+.pedido-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem}
+.pedido-body{display:grid;gap:.25rem;font-size:.9rem;margin-bottom:.75rem;color:#555}
+.pedido-items-preview{font-size:.85rem;color:var(--gray);padding:.5rem;background:#f8f9fa;border-radius:6px;margin-bottom:.75rem}
+.pedido-foot{text-align:right;font-size:1.1rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:1rem}
+.modal-content{background:#fff;border-radius:16px;padding:2rem;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;color:var(--gray)}
+.cliente-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:2rem 1rem;text-align:center}
+.logo-big{font-size:3rem;margin-bottom:.5rem}
+.categorias-nav{display:flex;gap:.5rem;padding:1rem;overflow-x:auto;background:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+.cat-btn{padding:.6rem 1.2rem;border:none;background:#f0f0f0;border-radius:20px;cursor:pointer;white-space:nowrap;font-weight:500}
+.cat-btn.active{background:var(--primary);color:#fff}
+.productos-main{padding:1rem;max-width:700px;margin:0 auto}
+.productos-grid{display:grid;gap:.75rem}
+.producto-card{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 2px 6px rgba(0,0,0,.05);cursor:pointer;transition:transform .2s}
+.producto-card:hover{transform:translateY(-2px)}
+.prod-foot{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem}
+.precio{font-size:1.3rem;font-weight:bold;color:var(--primary)}
+.add-btn-prod{background:var(--primary);color:#fff;padding:.4rem 1rem;border-radius:20px;font-size:.9rem}
+.carrito-footer{position:fixed;bottom:0;left:0;right:0;padding:1rem;background:#fff;box-shadow:0 -4px 12px rgba(0,0,0,.1);z-index:100}
+.btn-carrito{width:100%;max-width:700px;margin:0 auto;display:block;padding:1rem;background:var(--success);color:#fff;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer}
+.qr-display{text-align:center;padding:1rem;background:#fff;border-radius:12px;margin:1rem 0}
+.info-box{background:#f0f4ff;padding:1rem;border-radius:8px;margin:1rem 0;border-left:4px solid var(--primary)}
+.warning-box{background:#fff3cd;padding:1rem;border-radius:8px;margin:1rem 0;border-left:4px solid var(--warning)}
+.text-center{text-align:center}
+.mb-1{margin-bottom:1rem}
+.mb-2{margin-bottom:2rem}
+.mt-1{margin-top:1rem}
+.mt-2{margin-top:2rem}
+.error{color:var(--danger);margin-top:.5rem}
+.filter-btn{padding:.5rem 1rem;border:2px solid var(--border);background:#fff;border-radius:20px;cursor:pointer;font-size:.9rem}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+@media(max-width:768px){.stats-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.nav{flex-direction:column}.nav button{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🍽️ Plataforma SaaS</h1>
+    <p>Sistema de pedidos por QR para bares y restaurantes</p>
+</div>
+
+<div class="nav" id="main-nav">
+    <button onclick="showView('landing')" class="active" id="nav-landing">🏠 Inicio</button>
+    <button onclick="showView('setup')" id="nav-setup">✨ Nuevo Restaurante</button>
+    <button onclick="showView('superadmin')" id="nav-superadmin">🔐 Super Admin</button>
+    <button onclick="showView('tenants')" id="nav-tenants">🏪 Mis Restaurantes</button>
+</div>
+
+<div class="container">
+
+    <!-- ==================== LANDING ==================== -->
+    <div id="view-landing" class="view">
+        <div class="card text-center">
+            <h2>Bienvenido a la Plataforma de Pedidos por QR</h2>
+            <p style="color:var(--gray);margin:1rem 0 2rem">Gestiona tu restaurante con códigos QR, pedidos en tiempo real y estadísticas.</p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="showView('setup')" style="max-width:300px">✨ Configurar mi restaurante</button>
+                <button class="btn btn-secondary" onclick="showView('superadmin')" style="max-width:300px">🔐 Acceso Super Admin</button>
+            </div>
+        </div>
+        <div id="active-tenants" class="stats-grid"></div>
+    </div>
+
+    <!-- ==================== SETUP WIZARD ==================== -->
+    <div id="view-setup" class="view hidden">
+        <div class="steps-bar" id="steps-bar"></div>
+        <div class="step card hidden" data-step="1">
+            <h2>1. Datos del restaurante</h2>
+            <p class="mb-2" style="color:var(--gray)">Información básica de tu negocio</p>
+            <div class="form-grid">
+                <label>Nombre del negocio *<input type="text" id="s1-nombre" placeholder="Ej: Café Bar Castellano"></label>
+                <label>Email de acceso *<input type="email" id="s1-email" placeholder="admin@restaurante.com"></label>
+                <label>Teléfono<input type="tel" id="s1-telefono" placeholder="953 65 70 65"></label>
+                <label>Dirección<input type="text" id="s1-direccion" placeholder="C/ Puente, 7 - Linares"></label>
+            </div>
+            <label class="mb-2">Tipo de negocio (plantilla inicial)
+                <div class="plantillas" id="plantillas">
+                    <div class="plantilla-card" data-tipo="cafeteria"><div class="icon">☕</div><h4>Cafetería</h4><p>Desayunos, bollería</p></div>
+                    <div class="plantilla-card selected" data-tipo="restaurante"><div class="icon">🍽️</div><h4>Restaurante</h4><p>Entrantes, principales</p></div>
+                    <div class="plantilla-card" data-tipo="bar"><div class="icon">🍺</div><h4>Bar de Tapas</h4><p>Tapas frías y calientes</p></div>
+                    <div class="plantilla-card" data-tipo="vacio"><div class="icon">📝</div><h4>Vacío</h4><p>Desde cero</p></div>
+                </div>
+            </label>
+            <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="nextStep(1)">Siguiente →</button></div>
+        </div>
+        <div class="step card hidden" data-step="2">
+            <h2>2. Configuración de pagos</h2>
+            <p class="mb-2" style="color:var(--gray)">Configura cómo recibirás los pagos</p>
+            <div class="form-grid">
+                <label>WhatsApp barra (34...)<input type="text" id="s2-whatsapp" placeholder="34953657065"></label>
+                <label>Número Bizum<input type="text" id="s2-bizum-num" placeholder="600123456"></label>
+                <label>Nombre Bizum<input type="text" id="s2-bizum-nombre" placeholder="Café Bar Castellano"></label>
+                <label>IVA (%)<input type="number" id="s2-iva" value="10" step="0.01"></label>
+            </div>
+            <div class="warning-box">💡 Podrás cambiar estos datos después desde el panel.</div>
+            <div style="display:flex;justify-content:space-between"><button class="btn btn-secondary" onclick="prevStep(2)">← Atrás</button><button class="btn btn-primary" onclick="nextStep(2)">Siguiente →</button></div>
+        </div>
+        <div class="step card hidden" data-step="3">
+            <h2>3. Mesas y códigos QR</h2>
+            <p class="mb-2" style="color:var(--gray)">Añade las mesas de tu local</p>
+            <div class="items-list" id="mesas-list"></div>
+            <button class="add-btn" onclick="addMesa()">+ Añadir mesa</button>
+            <div style="display:flex;justify-content:space-between;margin-top:2rem"><button class="btn btn-secondary" onclick="prevStep(3)">← Atrás</button><button class="btn btn-primary" onclick="nextStep(3)">Siguiente →</button></div>
+        </div>
+        <div class="step card hidden" data-step="4">
+            <h2>4. Camareros</h2>
+            <p class="mb-2" style="color:var(--gray)">Añade a tu equipo</p>
+            <div class="items-list" id="camareros-list"></div>
+            <button class="add-btn" onclick="addCamarero()">+ Añadir camarero</button>
+            <div style="display:flex;justify-content:space-between;margin-top:2rem"><button class="btn btn-secondary" onclick="prevStep(4)">← Atrás</button><button class="btn btn-primary" onclick="nextStep(4)">Siguiente →</button></div>
+        </div>
+        <div class="step card hidden" data-step="5">
+            <h2>5. Resumen y activación</h2>
+            <p class="mb-2" style="color:var(--gray)">Revisa todo antes de activar</p>
+            <div id="setup-summary" class="mb-2"></div>
+            <div style="display:flex;justify-content:space-between"><button class="btn btn-secondary" onclick="prevStep(5)">← Atrás</button><button class="btn btn-success" id="btn-activar" onclick="activateTenant()">🚀 Activar restaurante</button></div>
+        </div>
+        <div class="step card hidden" data-step="6">
+            <div class="text-center">
+                <div style="font-size:5rem;margin-bottom:1rem">🎉</div>
+                <h2>¡Restaurante activado!</h2>
+                <p class="mb-2">Tu sistema de pedidos por QR está listo</p>
+                <div class="info-box" id="final-urls"></div>
+                <button class="btn btn-primary mt-2" onclick="showView('tenants')">Ver mis restaurantes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SUPER ADMIN ==================== -->
+    <div id="view-superadmin" class="view hidden">
+        <div id="super-login" class="card" style="max-width:500px;margin:0 auto">
+            <h2 class="text-center">🔐 Super Admin</h2>
+            <p class="text-center mb-2" style="color:var(--gray)">Panel de control de la plataforma</p>
+            <div class="form-grid">
+                <label>Email<input type="email" id="super-email" value="superadmin@saas.com"></label>
+                <label>Contraseña<input type="password" id="super-password" value="Religarean0611"></label>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="superLogin()">Entrar</button>
+            <div id="super-error" class="error"></div>
+        </div>
+        <div id="super-panel" class="hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                <h2>🏪 Restaurantes registrados</h2>
+                <button class="btn btn-danger btn-small" onclick="superLogout()">Salir</button>
+            </div>
+            <table class="table"><thead><tr><th>Nombre</th><th>Email</th><th>Mesas</th><th>Productos</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="super-tenants-body"></tbody></table>
+        </div>
+    </div>
+
+    <!-- ==================== TENANTS ==================== -->
+    <div id="view-tenants" class="view hidden">
+        <h2 class="mb-2">🏪 Mis Restaurantes</h2>
+        <div id="tenants-grid" class="stats-grid"></div>
+        <div id="no-tenants" class="card text-center hidden">
+            <p style="color:var(--gray);margin-bottom:1rem">No tienes restaurantes aún</p>
+            <button class="btn btn-primary" onclick="showView('setup')">Crear mi primer restaurante</button>
+        </div>
+    </div>
+
+    <!-- ==================== ADMIN ==================== -->
+    <div id="view-admin" class="view hidden">
+        <div id="admin-login" class="card" style="max-width:500px;margin:0 auto">
+            <h2 class="text-center">🔐 Acceso Admin</h2>
+            <p class="text-center mb-2" style="color:var(--gray)" id="admin-tenant-name"></p>
+            <div class="form-grid">
+                <label>Email del restaurante<input type="email" id="admin-email" placeholder="El email usado en el setup"></label>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="adminLogin()">Entrar (sin contraseña)</button>
+            <div id="admin-error" class="error"></div>
+            <button class="btn btn-secondary btn-block mt-1" onclick="volverDesdeAdmin()">← Volver</button>
+        </div>
+        <div id="admin-panel" class="hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
+                <h1 id="admin-title">Panel</h1>
+                <div style="display:flex;gap:.5rem">
+                    <button class="btn btn-secondary btn-small" onclick="volverDesdeAdmin()">← Volver</button>
+                    <button class="btn btn-danger btn-small" onclick="adminLogout()">Salir</button>
+                </div>
+            </div>
+            <div class="nav mb-2" style="justify-content:flex-start">
+                <button onclick="showAdminTab('dashboard')" class="active" id="tab-dashboard">📊 Dashboard</button>
+                <button onclick="showAdminTab('pedidos')" id="tab-pedidos">📝 Pedidos</button>
+                <button onclick="showAdminTab('mesas')" id="tab-mesas">🪑 Mesas</button>
+                <button onclick="showAdminTab('menu')" id="tab-menu">🍽️ Menú</button>
+                <button onclick="showAdminTab('camareros')" id="tab-camareros">👥 Camareros</button>
+            </div>
+            <div id="admin-dashboard" class="admin-tab">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Ventas hoy</div><div class="stat-value" id="stat-ventas">0,00 €</div></div>
+                    <div class="stat-card"><div class="stat-label">Pedidos hoy</div><div class="stat-value" id="stat-pedidos">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Ticket medio</div><div class="stat-value" id="stat-ticket">0,00 €</div></div>
+                </div>
+                <div class="card"><h3>📋 Pedidos por estado</h3><div id="estados-list" class="mt-1"></div></div>
+            </div>
+            <div id="admin-pedidos" class="admin-tab hidden">
+                <h2 class="mb-2">📝 Pedidos</h2>
+                <div class="nav mb-2" style="justify-content:flex-start">
+                    <button class="filter-btn active" onclick="filterPedidos('todos',this)">Todos</button>
+                    <button class="filter-btn" onclick="filterPedidos('pendiente',this)">⏳ Pendientes</button>
+                    <button class="filter-btn" onclick="filterPedidos('preparando',this)">👨‍🍳 Preparando</button>
+                    <button class="filter-btn" onclick="filterPedidos('listo',this)">✅ Listos</button>
+                    <button class="filter-btn" onclick="filterPedidos('entregado',this)">🚚 Entregados</button>
+                    <button class="filter-btn" onclick="filterPedidos('solicitando_cuenta',this)">🧾 Cuenta</button>
+                    <button class="filter-btn" onclick="filterPedidos('pagado',this)">💰 Pagados</button>
+                </div>
+                <div id="pedidos-list" class="pedidos-list"></div>
+            </div>
+            <div id="admin-mesas" class="admin-tab hidden">
+                <h2 class="mb-2">🪑 Gestión de Mesas</h2>
+                <div class="card mb-2">
+                    <h3 class="mb-1">Añadir mesa</h3>
+                    <div class="form-grid">
+                        <label>Número<input type="text" id="mesa-numero"></label>
+                        <label>Zona<input type="text" id="mesa-zona" placeholder="Barra, Salón..."></label>
+                        <label>Capacidad<input type="number" id="mesa-capacidad" value="4" min="1"></label>
+                    </div>
+                    <button class="btn btn-primary" onclick="addMesaAdmin()">+ Crear mesa</button>
+                </div>
+                <div id="mesas-grid" class="stats-grid"></div>
+            </div>
+            <div id="admin-menu" class="admin-tab hidden">
+                <h2 class="mb-2">🍽️ Gestión del Menú</h2>
+                <div class="nav mb-2" style="justify-content:flex-start">
+                    <button onclick="showMenuSubtab('categorias')" class="active" id="subtab-categorias">Categorías</button>
+                    <button onclick="showMenuSubtab('productos')" id="subtab-productos">Productos</button>
+                </div>
+                <div id="menu-categorias" class="menu-subtab">
+                    <div class="card mb-2"><h3 class="mb-1">Añadir categoría</h3><div class="form-grid"><label>Nombre<input type="text" id="cat-nombre"></label><label>Descripción<input type="text" id="cat-descripcion"></label></div><button class="btn btn-primary" onclick="addCategoria()">+ Añadir</button></div>
+                    <div id="categorias-list"></div>
+                </div>
+                <div id="menu-productos" class="menu-subtab hidden">
+                    <div class="card mb-2"><h3 class="mb-1">Añadir producto</h3><div class="form-grid"><label>Categoría<select id="prod-categoria"></select></label><label>Nombre<input type="text" id="prod-nombre"></label><label>Precio (€)<input type="number" id="prod-precio" step="0.01"></label></div><label class="mb-1">Descripción<input type="text" id="prod-descripcion"></label><button class="btn btn-primary" onclick="addProducto()">+ Añadir</button></div>
+                    <div id="productos-list"></div>
+                </div>
+            </div>
+            <div id="admin-camareros" class="admin-tab hidden">
+                <h2 class="mb-2">👥 Camareros</h2>
+                <div class="card mb-2"><h3 class="mb-1">Añadir camarero</h3><div class="form-grid"><label>Nombre<input type="text" id="cam-nombre"></label><label>Teléfono<input type="tel" id="cam-telefono"></label><label>WhatsApp (34...)<input type="tel" id="cam-whatsapp"></label><label>Zona<input type="text" id="cam-zona" value="Todas"></label></div><button class="btn btn-primary" onclick="addCamareroAdmin()">+ Añadir</button></div>
+                <div id="camareros-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CLIENTE QR ==================== -->
+    <div id="view-cliente" class="view hidden">
+        <div id="cliente-app"></div>
+    </div>
+</div>
+
+<!-- MODAL PEDIDO ADMIN -->
+<div id="modal-pedido" class="modal hidden">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('modal-pedido')">×</button>
+        <div id="modal-pedido-body"></div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// BASE DE DATOS (localStorage)
+// ============================================
+const DB_KEY = 'saas_pedidos_qr_v4';
+
+function getDB() {
+    try {
+        const d = localStorage.getItem(DB_KEY);
+        if (d) return JSON.parse(d);
+    } catch(e) {}
+    return {
+        superAdmin: { email: 'superadmin@saas.com', password: 'Religarean0611' },
+        tenants: []
+    };
+}
+function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+function fmtEUR(n) { return (n || 0).toFixed(2).replace('.', ',') + ' €'; }
+function fmtFecha(iso) { return new Date(iso).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }); }
+
+// ============================================
+// PLANTILLAS
+// ============================================
+const PLANTILLAS = {
+    cafeteria: {
+        categorias: [{ nombre:'Desayunos', descripcion:'Cafés, zumos y bollería' }, { nombre:'Bollería', descripcion:'Recién hecha' }, { nombre:'Bebidas', descripcion:'Refrescos' }],
+        productos: [
+            { cat:0, nombre:'Café Solo', descripcion:'Espresso', precio:1.20 }, { cat:0, nombre:'Café con Leche', descripcion:'Con leche', precio:1.50 }, { cat:0, nombre:'Zumo Natural', descripcion:'Naranja', precio:3.50 },
+            { cat:1, nombre:'Croissant', descripcion:'Artesanal', precio:1.80 }, { cat:1, nombre:'Napolitana', descripcion:'Chocolate', precio:1.90 },
+            { cat:2, nombre:'Coca-Cola', descripcion:'33cl', precio:2.50 }, { cat:2, nombre:'Agua', descripcion:'50cl', precio:1.50 }
+        ]
+    },
+    restaurante: {
+        categorias: [{ nombre:'Entrantes', descripcion:'Para compartir' }, { nombre:'Principales', descripcion:'Carnes y pescados' }, { nombre:'Postres', descripcion:'Caseros' }],
+        productos: [
+            { cat:0, nombre:'Ensalada Mixta', descripcion:'Lechuga, tomate', precio:7.50 }, { cat:0, nombre:'Croquetas (6)', descripcion:'Caseras', precio:7.00 }, { cat:0, nombre:'Tabla Ibérica', descripcion:'Jamón y quesos', precio:14.00 },
+            { cat:1, nombre:'Entrecot', descripcion:'300g', precio:18.00 }, { cat:1, nombre:'Merluza', descripcion:'A la plancha', precio:14.50 },
+            { cat:2, nombre:'Tarta de Queso', descripcion:'Casera', precio:5.00 }, { cat:2, nombre:'Flan', descripcion:'Con nata', precio:4.00 }
+        ]
+    },
+    bar: {
+        categorias: [{ nombre:'Tapas Frías', descripcion:'Para picar' }, { nombre:'Tapas Calientes', descripcion:'De la cocina' }, { nombre:'Bebidas', descripcion:'Cervezas y vinos' }],
+        productos: [
+            { cat:0, nombre:'Ensaladilla', descripcion:'Tradicional', precio:4.50 }, { cat:0, nombre:'Jamón Ibérico', descripcion:'Ración', precio:14.00 },
+            { cat:1, nombre:'Croquetas (6)', descripcion:'Jamón', precio:6.50 }, { cat:1, nombre:'Tortilla', descripcion:'Casera', precio:5.00 }, { cat:1, nombre:'Calamares', descripcion:'A la romana', precio:8.50 },
+            { cat:2, nombre:'Caña', descripcion:'Cerveza', precio:1.80 }, { cat:2, nombre:'Vino Tinto', descripcion:'Copa', precio:2.50 }
+        ]
+    }
+};
+
+// ============================================
+// ESTADO GLOBAL
+// ============================================
+let currentTenant = null;
+let currentStep = 1;
+let setupData = { mesas: [], camareros: [], tipo: 'restaurante', nombre:'', email:'', telefono:'', direccion:'', whatsapp:'', bizumNum:'', bizumNombre:'', iva:10 };
+let adminFilter = 'todos';
+let clienteCarrito = [];
+let clienteCategoria = null;
+let adminRefreshInterval = null;
+
+// ============================================
+// NAVEGACIÓN
+// ============================================
+function showView(view) {
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.add('hidden'); });
+    var el = document.getElementById('view-' + view);
+    if (el) el.classList.remove('hidden');
+    
+    document.querySelectorAll('#main-nav button').forEach(function(b) { b.classList.remove('active'); });
+    var nb = document.getElementById('nav-' + view);
+    if (nb) nb.classList.add('active');
+    
+    document.getElementById('main-nav').classList.remove('hidden');
+
+    if (view === 'landing') loadLanding();
+    if (view === 'setup') initWizard();
+    if (view === 'tenants') loadTenantsList();
+    if (view === 'superadmin') {
+        document.getElementById('super-panel').classList.add('hidden');
+        document.getElementById('super-login').classList.remove('hidden');
+        document.getElementById('super-error').textContent = '';
+    }
+    if (view === 'admin') {
+        if (currentTenant) {
+            document.getElementById('admin-login').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-title').textContent = currentTenant.nombre + ' - Panel';
+            showAdminTab('dashboard');
+        } else {
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.add('hidden');
+        }
+    }
+}
+
+function volverDesdeAdmin() {
+    if (adminRefreshInterval) { clearInterval(adminRefreshInterval); adminRefreshInterval = null; }
+    currentTenant = null;
+    showView('tenants');
+}
+
+// ============================================
+// LANDING
+// ============================================
+function loadLanding() {
+    var db = getDB();
+    var active = db.tenants.filter(function(t) { return t.activo; });
+    var c = document.getElementById('active-tenants');
+    if (active.length === 0) {
+        c.innerHTML = '<div class="card text-center" style="grid-column:1/-1"><h3>🚀 ¡Sé el primero!</h3><p style="color:var(--gray);margin:1rem 0">No hay restaurantes aún</p><button class="btn btn-primary" onclick="showView(\'setup\')">Configurar mi restaurante</button></div>';
+    } else {
+        c.innerHTML = active.map(function(t) {
+            return '<div class="card"><h3>' + t.nombre + '</h3><p style="color:var(--gray);font-size:.9rem">' + (t.direccion||'') + '</p><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0"><span class="badge badge-blue">🪑 ' + t.mesas.length + '</span><span class="badge badge-purple">🍽️ ' + t.productos.length + '</span></div><div style="display:flex;gap:.5rem"><button class="btn btn-primary btn-small" onclick="openTenantAdmin(\'' + t.id + '\')" style="flex:1">🔐 Admin</button><button class="btn btn-secondary btn-small" onclick="openClienteView(\'' + t.id + '\')" style="flex:1">📱 Ver QR</button></div></div>';
+        }).join('');
+    }
+}
+
+function openTenantAdmin(id) {
+    var db = getDB();
+    currentTenant = db.tenants.find(function(t) { return t.id === id; });
+    if (!currentTenant) return alert('Restaurante no encontrado');
+    
+    // Actualizar URL
+    var url = new URL(window.location);
+    url.searchParams.set('view', 'admin');
+    url.searchParams.set('tenant', id);
+    window.history.pushState({}, '', url);
+    
+    document.getElementById('admin-email').value = currentTenant.email;
+    document.getElementById('admin-tenant-name').textContent = currentTenant.nombre;
+    document.getElementById('admin-error').textContent = '';
+    
+    showView('admin');
+}
+
+function openClienteView(tenantId) {
+    var db = getDB();
+    var t = db.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t || !t.mesas.length) return alert('Sin mesas');
+    
+    currentTenant = t;
+    var mesaId = t.mesas[0].id;
+    
+    // Actualizar URL
+    var url = new URL(window.location);
+    url.searchParams.set('view', 'cliente');
+    url.searchParams.set('tenant', tenantId);
+    url.searchParams.set('mesa', mesaId);
+    window.history.pushState({}, '', url);
+    
+    renderClienteApp(mesaId);
+}
+
+// ============================================
+// WIZARD
+// ============================================
+function initWizard() {
+    currentStep = 1;
+    setupData = { mesas: [], camareros: [], tipo: 'restaurante', nombre:'', email:'', telefono:'', direccion:'', whatsapp:'', bizumNum:'', bizumNombre:'', iva:10 };
+    renderStepsBar();
+    showStep(1);
+    document.querySelectorAll('.plantilla-card').forEach(function(c) { c.classList.remove('selected'); });
+    document.querySelector('.plantilla-card[data-tipo="restaurante"]').classList.add('selected');
+    ['s1-nombre','s1-email','s1-telefono','s1-direccion','s2-whatsapp','s2-bizum-num','s2-bizum-nombre'].forEach(function(id) { var e = document.getElementById(id); if(e) e.value = ''; });
+    var ivaEl = document.getElementById('s2-iva'); if(ivaEl) ivaEl.value = '10';
+}
+
+function renderStepsBar() {
+    var steps = ['Datos','Pagos','Mesas','Camareros','Activar'];
+    document.getElementById('steps-bar').innerHTML = steps.map(function(s, i) {
+        var n = i + 1, cls = 'step-dot';
+        if (n < currentStep) cls += ' done';
+        else if (n === currentStep) cls += ' active';
+        return '<button class="' + cls + '" onclick="goToStep(' + n + ')">' + n + '</button>';
+    }).join('');
+}
+
+function showStep(n) {
+    document.querySelectorAll('.step').forEach(function(s) { s.classList.add('hidden'); });
+    var el = document.querySelector('.step[data-step="' + n + '"]');
+    if (el) el.classList.remove('hidden');
+    currentStep = n;
+    renderStepsBar();
+    if (n === 5) renderSummary();
+}
+
+function goToStep(n) { if (n <= currentStep) showStep(n); }
+function prevStep(n) { showStep(n - 1); }
+
+function nextStep(n) {
+    if (n === 1) {
+        var nombre = document.getElementById('s1-nombre').value.trim();
+        var email = document.getElementById('s1-email').value.trim();
+        if (!nombre || !email) return alert('Nombre y email obligatorios');
+        setupData.nombre = nombre;
+        setupData.email = email;
+        setupData.telefono = document.getElementById('s1-telefono').value.trim();
+        setupData.direccion = document.getElementById('s1-direccion').value.trim();
+        addMesa(); addCamarero();
+        showStep(2);
+    } else if (n === 2) {
+        setupData.whatsapp = document.getElementById('s2-whatsapp').value.trim();
+        setupData.bizumNum = document.getElementById('s2-bizum-num').value.trim();
+        setupData.bizumNombre = document.getElementById('s2-bizum-nombre').value.trim();
+        setupData.iva = parseFloat(document.getElementById('s2-iva').value) || 10;
+        showStep(3);
+    } else if (n === 3) {
+        if (setupData.mesas.length === 0) return alert('Añade al menos una mesa');
+        showStep(4);
+    } else if (n === 4) {
+        var hasName = setupData.camareros.some(function(c) { return c.nombre.trim() !== ''; });
+        if (!hasName) return alert('Añade al menos un camarero con nombre');
+        showStep(5);
+    }
+}
+
+function addMesa() {
+    setupData.mesas.push({ numero: String(setupData.mesas.length + 1), zona: '', capacidad: 4, id: genId() });
+    renderMesasSetup();
+}
+function renderMesasSetup() {
+    document.getElementById('mesas-list').innerHTML = setupData.mesas.map(function(m, i) {
+        return '<div class="item-row"><input type="text" placeholder="Número" value="' + m.numero + '" onchange="setupData.mesas[' + i + '].numero=this.value"><input type="text" placeholder="Zona" value="' + m.zona + '" onchange="setupData.mesas[' + i + '].zona=this.value"><input type="number" placeholder="Cap." value="' + m.capacidad + '" min="1" onchange="setupData.mesas[' + i + '].capacidad=parseInt(this.value)" style="max-width:80px"><button onclick="setupData.mesas.splice(' + i + ',1);renderMesasSetup()">🗑️</button></div>';
+    }).join('');
+}
+
+function addCamarero() {
+    setupData.camareros.push({ nombre: '', telefono: '', whatsapp: '', zona: 'Todas', id: genId() });
+    renderCamarerosSetup();
+}
+function renderCamarerosSetup() {
+    document.getElementById('camareros-list').innerHTML = setupData.camareros.map(function(c, i) {
+        return '<div class="item-row" style="flex-wrap:wrap"><input type="text" placeholder="Nombre" value="' + c.nombre + '" onchange="setupData.camareros[' + i + '].nombre=this.value"><input type="tel" placeholder="Teléfono" value="' + c.telefono + '" onchange="setupData.camareros[' + i + '].telefono=this.value"><input type="tel" placeholder="WhatsApp" value="' + c.whatsapp + '" onchange="setupData.camareros[' + i + '].whatsapp=this.value"><input type="text" placeholder="Zona" value="' + c.zona + '" onchange="setupData.camareros[' + i + '].zona=this.value" style="max-width:120px"><button onclick="setupData.camareros.splice(' + i + ',1);renderCamarerosSetup()">🗑️</button></div>';
+    }).join('');
+}
+
+document.addEventListener('click', function(e) {
+    var card = e.target.closest('.plantilla-card');
+    if (card && document.getElementById('plantillas').contains(card)) {
+        document.querySelectorAll('.plantilla-card').forEach(function(c) { c.classList.remove('selected'); });
+        card.classList.add('selected');
+        setupData.tipo = card.dataset.tipo;
+    }
+});
+
+function renderSummary() {
+    document.getElementById('setup-summary').innerHTML =
+        '<div class="card"><h3>📋 Datos</h3><p><strong>Nombre:</strong> ' + setupData.nombre + '</p><p><strong>Email:</strong> ' + setupData.email + '</p><p><strong>Tipo:</strong> ' + setupData.tipo + '</p></div>' +
+        '<div class="card"><h3>⚙️ Pagos</h3><p><strong>WhatsApp:</strong> ' + (setupData.whatsapp||'No') + '</p><p><strong>Bizum:</strong> ' + (setupData.bizumNum||'No') + '</p><p><strong>IVA:</strong> ' + setupData.iva + '%</p></div>' +
+        '<div class="card"><h3>📊 Elementos</h3><p>🪑 Mesas: ' + setupData.mesas.length + '</p><p>👥 Camareros: ' + setupData.camareros.filter(function(c){return c.nombre.trim()}).length + '</p></div>';
+}
+
+function activateTenant() {
+    var btn = document.getElementById('btn-activar');
+    btn.disabled = true; btn.textContent = 'Activando...';
+
+    var db = getDB();
+    var tid = genId();
+    var cats = [], prods = [];
+    if (setupData.tipo !== 'vacio' && PLANTILLAS[setupData.tipo]) {
+        var pl = PLANTILLAS[setupData.tipo];
+        cats = pl.categorias.map(function(c, i) { return { id: genId(), nombre: c.nombre, descripcion: c.descripcion, orden: i + 1 }; });
+        prods = pl.productos.map(function(p) { return { id: genId(), categoria_id: cats[p.cat].id, nombre: p.nombre, descripcion: p.descripcion, precio: p.precio, disponible: true }; });
+    }
+
+    var tenant = {
+        id: tid, nombre: setupData.nombre, email: setupData.email,
+        telefono: setupData.telefono, direccion: setupData.direccion,
+        whatsapp_barra: setupData.whatsapp, bizum_numero: setupData.bizumNum, bizum_nombre: setupData.bizumNombre,
+        iva: setupData.iva, activo: true, fechaCreacion: new Date().toISOString(),
+        mesas: setupData.mesas.map(function(m) { return { id: m.id, numero: m.numero, zona: m.zona, capacidad: m.capacidad }; }),
+        camareros: setupData.camareros.filter(function(c){return c.nombre.trim()}).map(function(c) { return { id: c.id, nombre: c.nombre, telefono: c.telefono, whatsapp: c.whatsapp, zona: c.zona, pin: String(Math.floor(1000+Math.random()*9000)) }; }),
+        categorias: cats, productos: prods, pedidos: [], facturas: [], contadorPedidos: 1, contadorFacturas: 1
+    };
+    db.tenants.push(tenant);
+    saveDB(db);
+
+    var baseUrl = window.location.origin + window.location.pathname;
+    document.getElementById('final-urls').innerHTML =
+        '<p><strong>🔐 Panel admin:</strong></p><p style="background:#f0f4ff;padding:.5rem;border-radius:6px;margin:.5rem 0;word-break:break-all">' + baseUrl + '?view=admin&tenant=' + tid + '</p>' +
+        '<p class="mt-1"><strong>🔑 Acceso:</strong> Email: ' + setupData.email + ' · Sin contraseña</p>' +
+        '<p class="mt-1"><strong>📱 URL cliente (ejemplo mesa 1):</strong></p><p style="background:#f0f4ff;padding:.5rem;border-radius:6px;margin:.5rem 0;word-break:break-all">' + baseUrl + '?view=cliente&tenant=' + tid + '&mesa=' + tenant.mesas[0].id + '</p>';
+
+    btn.disabled = false; btn.textContent = '🚀 Activar restaurante';
+    showStep(6);
+}
+
+// ============================================
+// SUPER ADMIN
+// ============================================
+function superLogin() {
+    var db = getDB();
+    var email = document.getElementById('super-email').value.trim();
+    var pass = document.getElementById('super-password').value;
+    if (email === db.superAdmin.email && pass === db.superAdmin.password) {
+        document.getElementById('super-login').classList.add('hidden');
+        document.getElementById('super-panel').classList.remove('hidden');
+        loadSuperTenants();
+    } else {
+        document.getElementById('super-error').textContent = 'Credenciales inválidas';
+    }
+}
+function superLogout() {
+    document.getElementById('super-panel').classList.add('hidden');
+    document.getElementById('super-login').classList.remove('hidden');
+}
+function loadSuperTenants() {
+    var db = getDB();
+    document.getElementById('super-tenants-body').innerHTML = db.tenants.map(function(t) {
+        return '<tr><td><strong>' + t.nombre + '</strong></td><td>' + t.email + '</td><td>' + t.mesas.length + '</td><td>' + t.productos.length + '</td><td><span class="badge ' + (t.activo?'badge-green':'badge-red') + '">' + (t.activo?'Activo':'Inactivo') + '</span></td><td><button class="btn btn-small btn-primary" onclick="openTenantAdmin(\'' + t.id + '\')">Admin</button> <button class="btn btn-small ' + (t.activo?'btn-danger':'btn-success') + '" onclick="toggleTenant(\'' + t.id + '\')">' + (t.activo?'Desactivar':'Activar') + '</button> <button class="btn btn-small btn-danger" onclick="deleteTenant(\'' + t.id + '\')">🗑️</button></td></tr>';
+    }).join('') || '<tr><td colspan="6" class="text-center" style="padding:2rem;color:var(--gray)">Sin restaurantes</td></tr>';
+}
+function toggleTenant(id) { var db=getDB(); var t=db.tenants.find(function(x){return x.id===id}); if(t){t.activo=!t.activo;saveDB(db);loadSuperTenants()} }
+function deleteTenant(id) { if(!confirm('¿Eliminar restaurante y todos sus datos?'))return; var db=getDB(); db.tenants=db.tenants.filter(function(t){return t.id!==id}); saveDB(db); loadSuperTenants(); }
+
+// ============================================
+// TENANTS LIST
+// ============================================
+function loadTenantsList() {
+    var db = getDB();
+    var grid = document.getElementById('tenants-grid');
+    var empty = document.getElementById('no-tenants');
+    if (db.tenants.length === 0) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    grid.innerHTML = db.tenants.map(function(t) {
+        return '<div class="card"><h3>' + t.nombre + '</h3><p style="color:var(--gray);font-size:.9rem">' + t.email + '</p><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0"><span class="badge ' + (t.activo?'badge-green':'badge-red') + '">' + (t.activo?'Activo':'Inactivo') + '</span><span class="badge badge-blue">🪑 ' + t.mesas.length + '</span><span class="badge badge-purple">🍽️ ' + t.productos.length + '</span></div><button class="btn btn-primary btn-block" onclick="openTenantAdmin(\'' + t.id + '\')">Acceder al panel</button></div>';
+    }).join('');
+}
+
+// ============================================
+// ADMIN
+// ============================================
+function adminLogin() {
+    var email = document.getElementById('admin-email').value.trim();
+    var errEl = document.getElementById('admin-error');
+    errEl.textContent = '';
+    
+    // Si currentTenant ya está establecido, usarlo
+    if (currentTenant) {
+        if (email.toLowerCase() !== currentTenant.email.toLowerCase()) {
+            errEl.textContent = 'Email incorrecto';
+            return;
+        }
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
+        document.getElementById('admin-title').textContent = currentTenant.nombre + ' - Panel';
+        showAdminTab('dashboard');
+        return;
+    }
+    
+    // Si no, buscar en URL
+    var params = new URLSearchParams(window.location.search);
+    var tid = params.get('tenant');
+    if (!tid) {
+        errEl.textContent = 'No se especificó restaurante';
+        return;
+    }
+    
+    var db = getDB();
+    var tenant = db.tenants.find(function(t) { return t.id === tid; });
+    
+    if (!tenant) {
+        errEl.textContent = 'Restaurante no encontrado';
+        return;
+    }
+    
+    if (email.toLowerCase() !== tenant.email.toLowerCase()) {
+        errEl.textContent = 'Email incorrecto';
+        return;
+    }
+    
+    currentTenant = tenant;
+    document.getElementById('admin-login').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    document.getElementById('admin-title').textContent = tenant.nombre + ' - Panel';
+    showAdminTab('dashboard');
+}
+
+function adminLogout() {
+    if (adminRefreshInterval) { clearInterval(adminRefreshInterval); adminRefreshInterval = null; }
+    currentTenant = null;
+    var url = new URL(window.location);
+    url.searchParams.delete('view');
+    url.searchParams.delete('tenant');
+    window.history.pushState({}, '', url);
+    showView('tenants');
+}
+
+function refreshTenant() {
+    if (!currentTenant) return;
+    var db = getDB();
+    currentTenant = db.tenants.find(function(t) { return t.id === currentTenant.id; });
+}
+
+function saveCurrentTenant() {
+    var db = getDB();
+    var idx = db.tenants.findIndex(function(t) { return t.id === currentTenant.id; });
+    if (idx !== -1) { db.tenants[idx] = currentTenant; saveDB(db); }
+}
+
+function showAdminTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.add('hidden'); });
+    document.getElementById('admin-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.nav button[id^="tab-"]').forEach(function(b) { b.classList.remove('active'); });
+    var tb = document.getElementById('tab-' + tab);
+    if (tb) tb.classList.add('active');
+    refreshTenant();
+    if (!currentTenant) return;
+    if (tab === 'dashboard') loadDashboard();
+    if (tab === 'pedidos') loadPedidos();
+    if (tab === 'mesas') loadMesas();
+    if (tab === 'menu') loadMenu();
+    if (tab === 'camareros') loadCamareros();
+    
+    // Auto-refresh cada 5 segundos
+    if (adminRefreshInterval) clearInterval(adminRefreshInterval);
+    adminRefreshInterval = setInterval(function() {
+        refreshTenant();
+        if (tab === 'dashboard') loadDashboard();
+        if (tab === 'pedidos') loadPedidos();
+    }, 5000);
+}
+
+function showMenuSubtab(s) {
+    document.querySelectorAll('.menu-subtab').forEach(function(t) { t.classList.add('hidden'); });
+    document.getElementById('menu-' + s).classList.remove('hidden');
+    document.querySelectorAll('#admin-menu .nav button').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('subtab-' + s).classList.add('active');
+}
+
+// -- Dashboard --
+function loadDashboard() {
+    var hoy = new Date().toISOString().split('T')[0];
+    var ph = currentTenant.pedidos.filter(function(p) { return p.fecha.startsWith(hoy); });
+    var ventas = ph.filter(function(p) { return p.estado==='pagado'||p.estado==='cerrado'; }).reduce(function(s,p) { return s+p.total; }, 0);
+    document.getElementById('stat-ventas').textContent = fmtEUR(ventas);
+    document.getElementById('stat-pedidos').textContent = ph.length;
+    document.getElementById('stat-ticket').textContent = fmtEUR(ph.length ? ventas/ph.length : 0);
+    var est = {};
+    ph.forEach(function(p) { est[p.estado] = (est[p.estado]||0)+1; });
+    var order = ['pendiente','preparando','listo','entregado','solicitando_cuenta','pagado','cerrado'];
+    var icons = {pendiente:'⏳',preparando:'👨‍🍳',listo:'✅',entregado:'🚚',solicitando_cuenta:'🧾',pagado:'💰',cerrado:'🔒'};
+    var colors = {pendiente:'yellow',preparando:'blue',listo:'green',entregado:'gray',solicitando_cuenta:'orange',pagado:'purple',cerrado:'gray'};
+    document.getElementById('estados-list').innerHTML = order.filter(function(e){return est[e]}).map(function(e) {
+        return '<div style="display:flex;justify-content:space-between;padding:.5rem;background:#f8f9fa;border-radius:6px;margin-bottom:.5rem"><span class="badge badge-' + colors[e] + '">' + icons[e] + ' ' + e.replace('_',' ') + '</span><strong>' + est[e] + '</strong></div>';
+    }).join('') || '<p style="color:var(--gray);text-align:center">Sin actividad hoy</p>';
+}
+
+// -- Pedidos --
+function loadPedidos() {
+    var peds = currentTenant.pedidos.slice().sort(function(a,b) { return new Date(b.fecha)-new Date(a.fecha); });
+    var fil = adminFilter === 'todos' ? peds : peds.filter(function(p) { return p.estado===adminFilter; });
+    var icons = {pendiente:'⏳',preparando:'👨‍🍳',listo:'✅',entregado:'🚚',solicitando_cuenta:'🧾',pagado:'💰',cerrado:'🔒'};
+    var colors = {pendiente:'yellow',preparando:'blue',listo:'green',entregado:'gray',solicitando_cuenta:'orange',pagado:'purple',cerrado:'gray'};
+    document.getElementById('pedidos-list').innerHTML = fil.length === 0 ? '<p class="text-center" style="color:var(--gray);padding:2rem">No hay pedidos</p>' : fil.map(function(p) {
+        var mesa = currentTenant.mesas.find(function(m){return m.id===p.mesa_id});
+        var cam = currentTenant.camareros.find(function(c){return c.id===p.camarero_id});
+        return '<div class="pedido-card estado-' + p.estado + '" onclick="verPedido(\'' + p.id + '\')"><div class="pedido-head"><div><strong>' + p.numero + '</strong> <span class="badge badge-' + colors[p.estado] + '">' + (icons[p.estado]||'') + ' ' + p.estado.replace('_',' ') + '</span></div><small>' + fmtFecha(p.fecha) + '</small></div><div class="pedido-body"><div>🪑 Mesa <strong>' + (mesa?mesa.numero:'?') + '</strong></div><div>👤 ' + (cam?cam.nombre:'Sin asignar') + '</div><div>💳 ' + p.metodo_pago + '</div></div><div class="pedido-items-preview">' + p.items.map(function(i){return i.cantidad+'× '+i.nombre}).join(' · ') + '</div><div class="pedido-foot"><strong>Total: ' + fmtEUR(p.total) + '</strong></div></div>';
+    }).join('');
+}
+
+function filterPedidos(f, btn) {
+    adminFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    loadPedidos();
+}
+
+function verPedido(pid) {
+    refreshTenant(); if(!currentTenant) return;
+    var p = currentTenant.pedidos.find(function(x){return x.id===pid}); if(!p) return;
+    var mesa = currentTenant.mesas.find(function(m){return m.id===p.mesa_id});
+    var cam = currentTenant.camareros.find(function(c){return c.id===p.camarero_id});
+    var colors = {pendiente:'yellow',preparando:'blue',listo:'green',entregado:'gray',solicitando_cuenta:'orange',pagado:'purple',cerrado:'gray'};
+    var icons = {pendiente:'⏳',preparando:'👨‍🍳',listo:'✅',entregado:'🚚',solicitando_cuenta:'🧾',pagado:'💰',cerrado:'🔒'};
+    var acc = [];
+    if(p.estado==='pendiente') acc.push('<button class="btn btn-primary" onclick="cambiarEstado(\''+p.id+'\',\'preparando\')">👨‍🍳 Preparando</button>');
+    if(p.estado==='preparando') acc.push('<button class="btn btn-primary" onclick="cambiarEstado(\''+p.id+'\',\'listo\')">✅ Listo</button>');
+    if(p.estado==='listo') acc.push('<button class="btn btn-primary" onclick="cambiarEstado(\''+p.id+'\',\'entregado\')">🚚 Entregado</button>');
+    if(p.estado==='entregado') acc.push('<button class="btn btn-warning" onclick="cambiarEstado(\''+p.id+'\',\'solicitando_cuenta\')">🧾 Pide cuenta</button>');
+    if(p.estado==='solicitando_cuenta') acc.push('<button class="btn btn-success" onclick="cambiarEstado(\''+p.id+'\',\'pagado\')">💰 Cobrar</button>');
+    if(p.estado==='pagado') { acc.push('<button class="btn btn-secondary" onclick="cerrarMesa(\''+p.id+'\')">🔒 Cerrar mesa</button>'); acc.push('<button class="btn btn-secondary" onclick="generarFactura(\''+p.id+'\')">📄 Factura</button>'); }
+    document.getElementById('modal-pedido-body').innerHTML =
+        '<h2>Pedido ' + p.numero + '</h2><p class="mb-2"><span class="badge badge-' + colors[p.estado] + '">' + (icons[p.estado]||'') + ' ' + p.estado.replace('_',' ') + '</span></p>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1rem 0;padding:1rem;background:#f8f9fa;border-radius:8px"><div><strong>Mesa:</strong> '+(mesa?mesa.numero:'-')+'</div><div><strong>Camarero:</strong> '+(cam?cam.nombre:'-')+'</div><div><strong>Hora:</strong> '+fmtFecha(p.fecha)+'</div><div><strong>Pago:</strong> '+p.metodo_pago+'</div></div>' +
+        '<h3 class="mt-1">Productos</h3><table class="table mb-1"><thead><tr><th>Cant.</th><th>Producto</th><th>Precio</th><th>Total</th></tr></thead><tbody>' +
+        p.items.map(function(i){return '<tr><td>'+i.cantidad+'</td><td>'+i.nombre+(i.notas?' <em>('+i.notas+')</em>':'')+'</td><td>'+i.precio_unitario.toFixed(2)+' €</td><td>'+i.subtotal.toFixed(2)+' €</td></tr>'}).join('') +
+        '</tbody></table><div style="padding:1rem;background:#f8f9fa;border-radius:8px"><div style="display:flex;justify-content:space-between"><span>Subtotal:</span><strong>'+p.subtotal.toFixed(2)+' €</strong></div><div style="display:flex;justify-content:space-between"><span>IVA ('+currentTenant.iva+'%):</span><strong>'+p.iva.toFixed(2)+' €</strong></div><div style="display:flex;justify-content:space-between;font-size:1.3rem;padding-top:.5rem;border-top:2px solid var(--border);margin-top:.5rem"><span>TOTAL:</span><strong>'+p.total.toFixed(2)+' €</strong></div></div>' +
+        (p.notas?'<div style="background:#fff3cd;padding:1rem;border-radius:8px;margin:1rem 0"><strong>Notas:</strong> '+p.notas+'</div>':'') +
+        '<h3 class="mt-1">Historial</h3><div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin:1rem 0">' + p.historial.map(function(h){return '<div style="padding:.3rem 0;border-bottom:1px solid var(--border)">'+fmtFecha(h.fecha)+' → <strong>'+h.estado.replace('_',' ')+'</strong></div>'}).join('') + '</div>' +
+        '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' + acc.join('') + '</div>';
+    document.getElementById('modal-pedido').classList.remove('hidden');
+}
+
+function cambiarEstado(pid, est) {
+    refreshTenant();
+    var p = currentTenant.pedidos.find(function(x){return x.id===pid}); if(!p) return;
+    p.estado = est;
+    p.historial.push({estado:est, fecha:new Date().toISOString(), usuario:'admin'});
+    if(est==='pagado') p.fecha_pago = new Date().toISOString();
+    saveCurrentTenant();
+    closeModal('modal-pedido');
+    loadPedidos(); loadDashboard();
+    console.log('📱 [WhatsApp] Pedido ' + p.numero + ' → ' + est);
+}
+function cerrarMesa(pid) { if(!confirm('¿Cerrar y liberar la mesa?'))return; cambiarEstado(pid,'cerrado'); }
+function generarFactura(pid) {
+    refreshTenant();
+    var p = currentTenant.pedidos.find(function(x){return x.id===pid}); if(!p) return;
+    var num = 'FAC-' + String(currentTenant.contadorFacturas++).padStart(6,'0');
+    var doc = new window.jspdf.jsPDF();
+    doc.setFontSize(20); doc.text(currentTenant.nombre, 105, 20, {align:'center'});
+    doc.setFontSize(11); doc.text(currentTenant.direccion||'', 105, 28, {align:'center'});
+    doc.text('Tel: '+(currentTenant.telefono||''), 105, 34, {align:'center'});
+    doc.setFontSize(14); doc.text('FACTURA '+num, 190, 20, {align:'right'});
+    doc.setFontSize(10); doc.text('Fecha: '+new Date().toLocaleDateString('es-ES'), 190, 28, {align:'right'});
+    doc.text('Pedido: '+p.numero, 190, 34, {align:'right'});
+    doc.line(20,42,190,42);
+    var y=50;
+    p.items.forEach(function(i){ doc.text(i.cantidad+'x '+i.nombre, 20, y); doc.text(i.subtotal.toFixed(2)+' €', 190, y, {align:'right'}); y+=6; });
+    y+=5; doc.line(20,y,190,y); y+=8;
+    doc.text('Subtotal: '+p.subtotal.toFixed(2)+' €', 140, y); y+=6;
+    doc.text('IVA ('+currentTenant.iva+'%): '+p.iva.toFixed(2)+' €', 140, y); y+=8;
+    doc.setFontSize(13); doc.text('TOTAL: '+p.total.toFixed(2)+' €', 140, y);
+    doc.save('factura-'+num+'.pdf');
+    currentTenant.facturas.push({id:genId(),pedido_id:p.id,numero:num,fecha:new Date().toISOString()});
+    saveCurrentTenant();
+}
+
+// -- Mesas --
+function loadMesas() {
+    var grid = document.getElementById('mesas-grid');
+    grid.innerHTML = currentTenant.mesas.map(function(m) {
+        return '<div class="card text-center"><h3 class="mb-1">Mesa ' + m.numero + '</h3><p style="color:var(--gray)">📍 ' + m.zona + ' · 👥 ' + m.capacidad + '</p><div id="qr-' + m.id + '" class="qr-display mt-1"></div><button class="btn btn-primary btn-small btn-block mt-1" onclick="descargarQR(\'' + m.id + '\')">⬇️ Descargar QR</button><button class="btn btn-danger btn-small btn-block mt-1" onclick="eliminarMesa(\'' + m.id + '\')">🗑️ Eliminar</button></div>';
+    }).join('') || '<p class="text-center" style="color:var(--gray)">Sin mesas</p>';
+    setTimeout(function() {
+        var baseUrl = window.location.origin + window.location.pathname;
+        currentTenant.mesas.forEach(function(m) {
+            var el = document.getElementById('qr-' + m.id);
+            if (el) { el.innerHTML = ''; new QRCode(el, { text: baseUrl + '?view=cliente&tenant=' + currentTenant.id + '&mesa=' + m.id, width:150, height:150 }); }
+        });
+    }, 200);
+}
+function addMesaAdmin() {
+    var num = document.getElementById('mesa-numero').value.trim();
+    var zona = document.getElementById('mesa-zona').value.trim();
+    var cap = parseInt(document.getElementById('mesa-capacidad').value)||4;
+    if(!num||!zona) return alert('Número y zona obligatorios');
+    currentTenant.mesas.push({id:genId(),numero:num,zona:zona,capacidad:cap});
+    saveCurrentTenant();
+    document.getElementById('mesa-numero').value=''; document.getElementById('mesa-zona').value='';
+    loadMesas();
+}
+function eliminarMesa(mid) { if(!confirm('¿Eliminar?'))return; currentTenant.mesas=currentTenant.mesas.filter(function(m){return m.id!==mid}); saveCurrentTenant(); loadMesas(); }
+function descargarQR(mid) { var c=document.querySelector('#qr-'+mid+' canvas'); if(c){var a=document.createElement('a');a.download='qr-mesa-'+mid+'.png';a.href=c.toDataURL();a.click();} }
+
+// -- Menú --
+function loadMenu() {
+    document.getElementById('categorias-list').innerHTML = currentTenant.categorias.map(function(c) {
+        return '<div class="card mb-1" style="padding:1rem"><div style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="margin:0">' + c.nombre + '</h4><p style="color:var(--gray);font-size:.9rem;margin:0">' + c.descripcion + '</p></div><button class="btn btn-danger btn-small" onclick="eliminarCategoria(\'' + c.id + '\')">🗑️</button></div></div>';
+    }).join('') || '<p style="color:var(--gray)">Sin categorías</p>';
+    document.getElementById('prod-categoria').innerHTML = '<option value="">-- Seleccionar --</option>' + currentTenant.categorias.map(function(c){return '<option value="'+c.id+'">'+c.nombre+'</option>'}).join('');
+    var grouped = {};
+    currentTenant.categorias.forEach(function(c){grouped[c.id]={cat:c,prods:[]}});
+    currentTenant.productos.filter(function(p){return p.disponible}).forEach(function(p){if(grouped[p.categoria_id])grouped[p.categoria_id].prods.push(p)});
+    document.getElementById('productos-list').innerHTML = Object.keys(grouped).map(function(k) {
+        var g = grouped[k];
+        return '<div class="card mb-1"><h4 class="mb-1">' + g.cat.nombre + '</h4>' + (g.prods.length===0?'<p style="color:var(--gray)">Sin productos</p>':g.prods.map(function(p){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;border-bottom:1px solid var(--border)"><div><strong>'+p.nombre+'</strong><p style="color:var(--gray);font-size:.9rem;margin:0">'+p.descripcion+'</p></div><div style="display:flex;align-items:center;gap:1rem"><strong style="color:var(--primary)">'+p.precio.toFixed(2)+' €</strong><button class="btn btn-danger btn-small" onclick="eliminarProducto(\''+p.id+'\')">🗑️</button></div></div>'}).join('')) + '</div>';
+    }).join('');
+}
+function addCategoria() { var n=document.getElementById('cat-nombre').value.trim(); if(!n)return alert('Nombre obligatorio'); currentTenant.categorias.push({id:genId(),nombre:n,descripcion:document.getElementById('cat-descripcion').value.trim(),orden:currentTenant.categorias.length+1}); saveCurrentTenant(); document.getElementById('cat-nombre').value='';document.getElementById('cat-descripcion').value=''; loadMenu(); }
+function eliminarCategoria(cid) { if(!confirm('¿Eliminar?'))return; currentTenant.categorias=currentTenant.categorias.filter(function(c){return c.id!==cid}); currentTenant.productos=currentTenant.productos.filter(function(p){return p.categoria_id!==cid}); saveCurrentTenant(); loadMenu(); }
+function addProducto() { var cid=document.getElementById('prod-categoria').value,n=document.getElementById('prod-nombre').value.trim(),pr=parseFloat(document.getElementById('prod-precio').value); if(!cid||!n||!pr)return alert('Completa todos los campos'); currentTenant.productos.push({id:genId(),categoria_id:cid,nombre:n,descripcion:document.getElementById('prod-descripcion').value.trim(),precio:pr,disponible:true}); saveCurrentTenant(); document.getElementById('prod-nombre').value='';document.getElementById('prod-precio').value='';document.getElementById('prod-descripcion').value=''; loadMenu(); }
+function eliminarProducto(pid) { if(!confirm('¿Eliminar?'))return; currentTenant.productos=currentTenant.productos.filter(function(p){return p.id!==pid}); saveCurrentTenant(); loadMenu(); }
+
+// -- Camareros --
+function loadCamareros() {
+    document.getElementById('camareros-list').innerHTML = currentTenant.camareros.map(function(c) {
+        return '<div class="card mb-1"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><h4 style="margin:0">'+c.nombre+'</h4><span class="badge badge-blue">📍 '+c.zona+'</span></div><p style="color:var(--gray);font-size:.9rem;margin:0">📱 '+(c.telefono||'-')+'</p><p style="color:var(--gray);font-size:.9rem;margin:0">💬 '+(c.whatsapp||'-')+'</p><p style="color:var(--gray);font-size:.9rem;margin:0">🔑 PIN: <code style="background:#f0f4ff;padding:.2rem .5rem;border-radius:4px">'+c.pin+'</code></p><button class="btn btn-danger btn-small mt-1" onclick="eliminarCamarero(\''+c.id+'\')">🗑️</button></div>';
+    }).join('') || '<p style="color:var(--gray)">Sin camareros</p>';
+}
+function addCamareroAdmin() { var n=document.getElementById('cam-nombre').value.trim(); if(!n)return alert('Nombre obligatorio'); currentTenant.camareros.push({id:genId(),nombre:n,telefono:document.getElementById('cam-telefono').value.trim(),whatsapp:document.getElementById('cam-whatsapp').value.trim(),zona:document.getElementById('cam-zona').value.trim()||'Todas',pin:String(Math.floor(1000+Math.random()*9000))}); saveCurrentTenant(); document.getElementById('cam-nombre').value='';document.getElementById('cam-telefono').value='';document.getElementById('cam-whatsapp').value='';document.getElementById('cam-zona').value='Todas'; loadCamareros(); }
+function eliminarCamarero(cid) { if(!confirm('¿Eliminar?'))return; currentTenant.camareros=currentTenant.camareros.filter(function(c){return c.id!==cid}); saveCurrentTenant(); loadCamareros(); }
+
+// ============================================
+// CLIENTE QR
+// ============================================
+function renderClienteApp(mesaId) {
+    if (!currentTenant) return;
+    var t = currentTenant;
+    var mesa = t.mesas.find(function(m) { return m.id === mesaId; });
+    var app = document.getElementById('cliente-app');
+
+    if (!mesa) {
+        app.innerHTML = '<div class="text-center" style="padding:3rem"><h1 style="color:var(--danger)">❌ Mesa no encontrada</h1><button class="btn btn-primary mt-2" onclick="showView(\'landing\')">Volver</button></div>';
+        document.querySelectorAll('.view').forEach(function(v){v.classList.add('hidden')});
+        document.getElementById('view-cliente').classList.remove('hidden');
+        document.getElementById('main-nav').classList.add('hidden');
+        return;
+    }
+
+    clienteCarrito = [];
+    clienteCategoria = t.categorias.length ? t.categorias[0].id : null;
+
+    document.querySelectorAll('.view').forEach(function(v){v.classList.add('hidden')});
+    document.getElementById('view-cliente').classList.remove('hidden');
+    document.getElementById('main-nav').classList.add('hidden');
+
+    app.innerHTML =
+        '<div class="cliente-header"><div class="logo-big">🍽️</div><h1>' + t.nombre + '</h1><p>🪑 Mesa <strong>' + mesa.numero + '</strong> · ' + mesa.zona + '</p></div>' +
+        '<div class="categorias-nav" id="cl-cats"></div>' +
+        '<div class="productos-main" id="cl-prods"></div>' +
+        '<div id="cl-pedidos" style="max-width:700px;margin:1rem auto;padding:0 1rem;display:none"><h3 class="mb-1">📋 Tus pedidos</h3><div id="cl-pedidos-list"></div></div>' +
+        '<div class="carrito-footer" id="cl-carrito" style="display:none"><button class="btn-carrito" onclick="abrirCarritoCliente()">🛒 Ver carrito (<span id="cc-count">0</span>) · <span id="cc-total">0,00 €</span></button></div>';
+
+    renderClCats();
+    renderClProds();
+    loadClPedidos(mesaId);
+    setInterval(function(){loadClPedidos(mesaId)}, 10000);
+}
+
+function renderClCats() {
+    var cats = currentTenant.categorias;
+    document.getElementById('cl-cats').innerHTML = cats.map(function(c) {
+        return '<button class="cat-btn ' + (c.id===clienteCategoria?'active':'') + '" onclick="selectClCat(\'' + c.id + '\')">' + c.nombre + '</button>';
+    }).join('');
+}
+function selectClCat(id) { clienteCategoria = id; renderClCats(); renderClProds(); }
+
+function renderClProds() {
+    var prods = currentTenant.productos.filter(function(p){return p.categoria_id===clienteCategoria && p.disponible});
+    var cat = currentTenant.categorias.find(function(c){return c.id===clienteCategoria});
+    document.getElementById('cl-prods').innerHTML =
+        '<div style="margin-bottom:1rem;padding:1rem;background:#fff;border-radius:12px"><h2 style="color:var(--primary);margin-bottom:.3rem">' + (cat?cat.nombre:'') + '</h2><p style="color:var(--gray)">' + (cat?cat.descripcion:'') + '</p></div>' +
+        '<div class="productos-grid">' + prods.map(function(p) {
+            return '<div class="producto-card" onclick="abrirProductoCliente(\'' + p.id + '\')"><h3>' + p.nombre + '</h3><p style="color:var(--gray);font-size:.9rem;margin:.3rem 0">' + p.descripcion + '</p><div class="prod-foot"><span class="precio">' + p.precio.toFixed(2) + ' €</span><span class="add-btn-prod">+ Añadir</span></div></div>';
+        }).join('') + '</div>';
+}
+
+function abrirProductoCliente(pid) {
+    var p = currentTenant.productos.find(function(x){return x.id===pid}); if(!p) return;
+    var old = document.getElementById('modal-prod-cl');
+    if (old) old.remove();
+
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'modal-prod-cl';
+    modal.innerHTML =
+        '<div class="modal-content"><button class="modal-close" onclick="this.closest(\'.modal\').remove()">×</button>' +
+        '<h2>' + p.nombre + '</h2><p style="color:var(--gray);margin:.5rem 0">' + p.descripcion + '</p>' +
+        '<p class="precio" style="font-size:1.5rem;margin:1rem 0">' + p.precio.toFixed(2) + ' €</p>' +
+        '<div style="margin:1rem 0"><label>Cantidad</label><div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem">' +
+        '<button class="btn btn-secondary btn-small" onclick="var s=document.getElementById(\'pc-cant\');s.textContent=Math.max(1,parseInt(s.textContent)-1)">−</button>' +
+        '<span id="pc-cant" style="font-size:1.5rem;font-weight:bold">1</span>' +
+        '<button class="btn btn-secondary btn-small" onclick="var s=document.getElementById(\'pc-cant\');s.textContent=parseInt(s.textContent)+1">+</button></div></div>' +
+        '<div style="margin:1rem 0"><label>Notas (opcional)</label><input type="text" id="pc-notas" placeholder="Ej: sin cebolla" style="margin-top:.5rem;width:100%"></div>' +
+        '<button class="btn btn-primary btn-block" onclick="addCarritoCliente(\'' + p.id + '\')">Añadir al carrito</button></div>';
+    document.body.appendChild(modal);
+}
+
+function addCarritoCliente(pid) {
+    var p = currentTenant.productos.find(function(x){return x.id===pid});
+    var cant = parseInt(document.getElementById('pc-cant').textContent) || 1;
+    var notas = document.getElementById('pc-notas').value;
+    clienteCarrito.push({ id:p.id, nombre:p.nombre, precio:p.precio, cantidad:cant, notas:notas });
+    var m = document.getElementById('modal-prod-cl'); if(m) m.remove();
+    updateCarritoUI();
+}
+
+function updateCarritoUI() {
+    var total = clienteCarrito.reduce(function(s,i){return s+i.precio*i.cantidad},0);
+    var count = clienteCarrito.reduce(function(s,i){return s+i.cantidad},0);
+    document.getElementById('cc-count').textContent = count;
+    document.getElementById('cc-total').textContent = fmtEUR(total);
+    document.getElementById('cl-carrito').style.display = count > 0 ? 'block' : 'none';
+}
+
+function abrirCarritoCliente() {
+    var old = document.getElementById('modal-cart-cl'); if(old) old.remove();
+    var total = clienteCarrito.reduce(function(s,i){return s+i.precio*i.cantidad},0);
+    var modal = document.createElement('div');
+    modal.className = 'modal'; modal.id = 'modal-cart-cl';
+    modal.innerHTML =
+        '<div class="modal-content"><button class="modal-close" onclick="this.closest(\'.modal\').remove()">×</button><h2>🛒 Tu pedido</h2>' +
+        '<div style="max-height:40vh;overflow-y:auto;margin:1rem 0">' +
+        (clienteCarrito.length===0 ? '<p style="color:var(--gray);text-align:center">Vacío</p>' :
+        clienteCarrito.map(function(item, i) {
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;border-bottom:1px solid var(--border)"><div><strong>'+item.nombre+'</strong>'+(item.notas?'<p style="color:var(--gray);font-size:.85rem;margin:0"><em>'+item.notas+'</em></p>':'')+'<p style="color:var(--primary);font-weight:bold;margin:0">'+(item.precio*item.cantidad).toFixed(2)+' €</p></div><div style="display:flex;align-items:center;gap:.3rem"><button class="btn btn-secondary btn-small" onclick="ccCant('+i+',-1)">−</button><span>'+item.cantidad+'</span><button class="btn btn-secondary btn-small" onclick="ccCant('+i+',1)">+</button><button class="btn btn-danger btn-small" onclick="ccDel('+i+')">×</button></div></div>';
+        }).join('')) +
+        '</div><div style="padding:1rem;background:#f8f9fa;border-radius:8px;margin-bottom:1rem"><div style="display:flex;justify-content:space-between;font-size:1.2rem"><strong>Total:</strong><strong>'+total.toFixed(2)+' €</strong></div></div>' +
+        '<div style="margin-bottom:1rem"><label>Método de pago</label><select id="cl-metodo" style="margin-top:.5rem;width:100%"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option><option value="bizum">📱 Bizum</option></select></div>' +
+        (currentTenant.bizum_numero ? '<div id="cl-bizum" class="info-box" style="display:none"><p>📱 Bizum a: <strong>'+currentTenant.bizum_numero+'</strong></p><p>Nombre: <strong>'+(currentTenant.bizum_nombre||'')+'</strong></p></div>' : '') +
+        '<button class="btn btn-success btn-block" onclick="enviarPedidoCliente()">✅ Confirmar pedido</button></div>';
+    document.body.appendChild(modal);
+
+    var sel = document.getElementById('cl-metodo');
+    if (sel) {
+        sel.addEventListener('change', function() {
+            var bz = document.getElementById('cl-bizum');
+            if (bz) bz.style.display = this.value === 'bizum' ? 'block' : 'none';
+        });
+    }
+}
+
+function ccCant(i, d) { clienteCarrito[i].cantidad = Math.max(1, clienteCarrito[i].cantidad+d); abrirCarritoCliente(); updateCarritoUI(); }
+function ccDel(i) { clienteCarrito.splice(i,1); abrirCarritoCliente(); updateCarritoUI(); }
+
+function enviarPedidoCliente() {
+    if (!clienteCarrito.length) return alert('Carrito vacío');
+    var metodo = document.getElementById('cl-metodo').value;
+    var params = new URLSearchParams(window.location.search);
+    var mesaId = params.get('mesa');
+    var numero = currentTenant.id.slice(0,3).toUpperCase() + '-' + String(currentTenant.contadorPedidos++).padStart(5,'0');
+    var subtotal = 0;
+    var items = clienteCarrito.map(function(item) {
+        var sub = item.precio * item.cantidad; subtotal += sub;
+        return { id:genId(), producto_id:item.id, nombre:item.nombre, cantidad:item.cantidad, precio_unitario:item.precio, notas:item.notas, subtotal:sub };
+    });
+    var iva = subtotal * (currentTenant.iva/100);
+    var mesa = currentTenant.mesas.find(function(m){return m.id===mesaId});
+    var cam = currentTenant.camareros.find(function(c){return c.zona===(mesa?mesa.zona:'')});
+    if (!cam) cam = currentTenant.camareros[0] || {id:null,nombre:'Sin asignar'};
+
+    currentTenant.pedidos.push({
+        id:genId(), numero:numero, mesa_id:mesaId, camarero_id:cam.id, estado:'pendiente',
+        items:items, subtotal:subtotal, iva:iva, total:subtotal+iva, metodo_pago:metodo,
+        justificante_url:null, notas:'', fecha:new Date().toISOString(), fecha_pago:null,
+        historial:[{estado:'pendiente',fecha:new Date().toISOString(),usuario:'cliente'}]
+    });
+    saveCurrentTenant();
+
+    var m = document.getElementById('modal-cart-cl'); if(m) m.remove();
+    var cm = document.createElement('div'); cm.className='modal';
+    cm.innerHTML='<div class="modal-content text-center"><div style="font-size:5rem;margin-bottom:1rem">✅</div><h2>¡Pedido enviado!</h2><p class="mb-2">Número: <strong>'+numero+'</strong></p><p>Lo estamos preparando...</p><button class="btn btn-primary mt-2" onclick="this.closest(\'.modal\').remove()">Seguir pidiendo</button></div>';
+    document.body.appendChild(cm);
+
+    clienteCarrito = [];
+    updateCarritoUI();
+    loadClPedidos(mesaId);
+    console.log('📱 [WhatsApp] Nuevo pedido ' + numero + ' - Mesa ' + (mesa?mesa.numero:'?'));
+}
+
+function loadClPedidos(mesaId) {
+    refreshTenant(); if(!currentTenant) return;
+    var peds = currentTenant.pedidos.filter(function(p){return p.mesa_id===mesaId && p.estado!=='pagado' && p.estado!=='cerrado'});
+    var cont = document.getElementById('cl-pedidos');
+    if(!cont) return;
+    if(peds.length===0){cont.style.display='none';return}
+    cont.style.display='block';
+    var icons={pendiente:'⏳',preparando:'👨‍🍳',listo:'✅',entregado:'🚚',solicitando_cuenta:'🧾'};
+    var colors={pendiente:'yellow',preparando:'blue',listo:'green',entregado:'gray',solicitando_cuenta:'orange'};
+    document.getElementById('cl-pedidos-list').innerHTML = peds.map(function(p) {
+        var acc='';
+        if(p.estado==='entregado') acc='<button class="btn btn-warning btn-small mt-1" onclick="pedirCuentaCliente(\''+p.id+'\')">🧾 Pedir la cuenta</button>';
+        if(p.estado==='solicitando_cuenta') acc='<p style="color:var(--orange);margin-top:.5rem">⏳ Cuenta solicitada, en breve viene el camarero</p>';
+        return '<div style="background:#fff;padding:1rem;border-radius:10px;margin-bottom:.5rem;box-shadow:0 2px 4px rgba(0,0,0,.05)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><strong>'+p.numero+'</strong><span class="badge badge-'+colors[p.estado]+'">'+(icons[p.estado]||'')+' '+p.estado.replace('_',' ')+'</span></div><p style="color:var(--gray);font-size:.9rem;margin-bottom:.5rem">'+p.items.map(function(i){return i.cantidad+'× '+i.nombre}).join(' · ')+'</p><p style="text-align:right;font-weight:bold;color:var(--primary)">'+fmtEUR(p.total)+'</p>'+acc+'</div>';
+    }).join('');
+}
+
+function pedirCuentaCliente(pid) {
+    if(!confirm('¿Pedir la cuenta?'))return;
+    refreshTenant();
+    var p = currentTenant.pedidos.find(function(x){return x.id===pid});
+    if(p){p.estado='solicitando_cuenta';p.historial.push({estado:'solicitando_cuenta',fecha:new Date().toISOString(),usuario:'cliente'});saveCurrentTenant();var params=new URLSearchParams(window.location.search);loadClPedidos(params.get('mesa'));}
+}
+
+// ============================================
+// MODAL UTIL
+// ============================================
+function closeModal(id) { var m=document.getElementById(id); if(m) m.classList.add('hidden'); }
+
+// ============================================
+// INIT
+// ============================================
+window.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    var view = params.get('view');
+    var tenantId = params.get('tenant');
+    var mesaId = params.get('mesa');
+
+    if (view === 'admin' && tenantId) {
+        var db = getDB();
+        currentTenant = db.tenants.find(function(t){return t.id===tenantId});
+        if (currentTenant) {
+            document.getElementById('admin-email').value = currentTenant.email;
+            document.getElementById('admin-tenant-name').textContent = currentTenant.nombre;
+            document.querySelectorAll('.view').forEach(function(v){v.classList.add('hidden')});
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.querySelectorAll('#main-nav button').forEach(function(b){b.classList.remove('active')});
+        } else {
+            showView('landing');
+        }
+    } else if (view === 'cliente' && tenantId && mesaId) {
+        var db2 = getDB();
+        currentTenant = db2.tenants.find(function(t){return t.id===tenantId});
+        if (currentTenant) {
+            renderClienteApp(mesaId);
+        } else {
+            showView('landing');
+        }
+    } else {
+        showView('landing');
+    }
+});
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>🍽️ Hostelería Pro</title>
-<!-- VERSION: PROD-2026-10-11-DASHBOARDS-CLIENTE-LOCK -->
+<!-- VERSION: PROD-2026-10-11-LOCKED-CLIENT -->
 <style>
 :root{--bg:#0a0a0f;--bg2:#13131a;--card:#1a1a24;--border:#2a2a38;--t1:#f4f4f5;--t2:#a1a1aa;--t3:#71717a;--gold:#f59e0b;--green:#10b981;--blue:#3b82f6;--red:#ef4444;--purple:#8b5cf6;--orange:#f97316;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
@@ -263,7 +263,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </div>
 
-  <!-- ============ SUPERADMIN ============ -->
   <section id="superadminPanel" class="hidden">
     <div class="tabs" id="superadminTabs">
       <div class="tab active" data-tab="sa-inicio" onclick="switchSATab('sa-inicio')">🏠 Inicio</div>
@@ -311,7 +310,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </section>
 
-  <!-- ============ ADMIN ============ -->
   <section id="adminPanel" class="hidden">
     <div class="tabs" id="adminTabs">
       <div class="tab active" data-tab="ad-inicio" onclick="switchAdTab('ad-inicio')">🏠 Inicio</div>
@@ -402,7 +400,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </section>
 
-  <!-- ============ CLIENTE ============ -->
   <section id="clientPanel" class="hidden">
     <div class="clienthead"><h2>Bienvenido</h2><p style="color:var(--t2);font-size:14px;">Escanea, elige y disfruta</p><div class="mesatag" id="mesaTag" style="display:none;">🪑 <span id="mesaTagText"></span></div></div>
     <div class="card statecard hidden" id="clientStateCard"><div style="font-size:12px;color:var(--t2);text-transform:uppercase;">Estado de tu último pedido</div><b id="clientStateValue"></b><div id="clientStateItems" class="otime" style="margin-top:4px;"></div></div>
@@ -417,7 +414,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </section>
 
-  <!-- ============ COCINA ============ -->
   <section id="cocinaPanel" class="hidden">
     <div class="tabs">
       <div class="tab active" data-tab="co-inicio" onclick="switchCoTab('co-inicio')">🏠 Inicio</div>
@@ -451,7 +447,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </section>
 
-  <!-- ============ BARRA ============ -->
   <section id="barraPanel" class="hidden">
     <div class="tabs">
       <div class="tab active" data-tab="ba-inicio" onclick="switchBaTab('ba-inicio')">🏠 Inicio</div>
@@ -495,7 +490,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </section>
 
-  <!-- ============ CAMARERO ============ -->
   <section id="camareroPanel" class="hidden">
     <div class="tabs">
       <div class="tab active" data-tab="cm-inicio" onclick="switchCmTab('cm-inicio')">🏠 Inicio</div>
@@ -615,7 +609,7 @@ function debugLog(m,t){t=t||'info';console.log('['+t.toUpperCase()+'] '+m);}
 function hashPassword(pw){var h=5381;for(var i=0;i<pw.length;i++){h=((h<<5)+h)+pw.charCodeAt(i);h=h&0x7fffffff;}return'h'+h.toString(36);}
 function initFirebase(){try{firebase.initializeApp(firebaseConfig);db=firebase.database();firebaseReady=true;db.ref('.info/connected').on('value',function(s){var c=s.val()===true;var d=document.getElementById('cDot'),t=document.getElementById('cTxt'),b=document.getElementById('reconnectBanner');if(c){d.classList.add('on');t.textContent='Conectado';b.classList.add('hidden');if(wasDisconnected){showToast('✅ Reconectado','success');wasDisconnected=false;}}else{d.classList.remove('on');t.textContent='Desconectado';b.classList.remove('hidden');wasDisconnected=true;}var sa=document.getElementById('saFirebaseState');if(sa)sa.textContent=c?'Conectado':'Desconectado';});debugLog('Firebase OK','success');return true;}catch(e){debugLog('Error Firebase: '+e.message,'error');return false;}}
 var params=new URLSearchParams(location.search);var urlVista=params.get('vista')||'',urlMesa=params.get('mesa')||'';
-var KEY_ROLE='hosteleria_role',KEY_CID='hosteleria_client_id',KEY_MESA='hosteleria_mesa',KEY_CAM='hosteleria_cam_name',KEY_PAID='hosteleria_paid',KEY_DEVICE='hosteleria_device_id';
+var KEY_ROLE='hosteleria_role',KEY_CID='hosteleria_client_id',KEY_MESA='hosteleria_mesa',KEY_CAM='hosteleria_cam_name',KEY_PAID='hosteleria_paid',KEY_DEVICE='hosteleria_device_id',KEY_LOCK='hosteleria_client_lock';
 var role='menu';
 if(urlMesa){role='cliente';localStorage.setItem(KEY_MESA,urlMesa);}
 else if(['admin','barra','cocina','camarero','superadmin'].indexOf(urlVista)!==-1){role=urlVista;localStorage.setItem(KEY_ROLE,role);}
@@ -666,7 +660,7 @@ function vibrar(){try{if(navigator.vibrate)navigator.vibrate([500,200,500,200,50
 function vibrarCorto(){try{if(navigator.vibrate)navigator.vibrate([300,100,300]);}catch(e){}}
 document.addEventListener('pointerdown',function(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().then(checkAudioState);},{once:true});
 function requestWakeLock(){try{if('wakeLock' in navigator)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}}
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();updateTitleBadge();}});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();updateTitleBadge();verificarBloqueoCliente();}});
 function compressImage(file,mw,q){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var w=img.width,h=img.height;if(w>mw){h=Math.round(h*(mw/w));w=mw;}var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',q));};img.onerror=function(){rej();};img.src=r.result;};r.readAsDataURL(file);});}
 function compressFile(f){if(!f||!f.type.startsWith('image/'))return Promise.resolve('');return compressImage(f,600,.62).then(function(d){return d.length>900000?compressImage(f,420,.45):d;}).then(function(d){return d.length>950000?compressImage(f,320,.35):d;}).catch(function(){return'';});}
 function moverAHistorial(pedidoId,pedidoData){var now=new Date();var mesKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');var pData=Object.assign({},pedidoData,{estado:'PAGADO',updatedAtLocal:nowLocal()});db.ref('historial/'+mesKey+'/'+pedidoId).set(pData).then(function(){db.ref('pedidos/'+pedidoId).remove();}).catch(function(e){debugLog('Error moviendo a historial: '+e.message,'error');});}
@@ -682,7 +676,6 @@ function updateTitleBadge(){var badge=document.getElementById('pendingBadge');va
 function mostrarNotifOverlay(n){currentNotifOverlay=n;notifsMostradas[n.id]=true;var titulo='🔔 NOTIFICACIÓN';var clase='';var bodyHtml='';if(n.tipo==='BARRA_LISTO'){titulo='🍸 BARRA — BEBIDA LISTA';clase='barra-alert';playSound('barra_listo');vibrar();}else if(n.tipo==='COCINA_LISTO'){titulo='👨‍🍳 COCINA — PEDIDO LISTO';clase='cocina-alert';playSound('cocina_listo');vibrar();}else if(n.tipo==='NUEVO_PEDIDO'){titulo='📥 NUEVO PEDIDO';clase='recoger';playSound(role==='cocina'?'nuevo_pedido_cocina':'nuevo_pedido');vibrar();}else if(n.tipo==='ALERTA_CLIENTE'){titulo='🔔 ALERTA DE CLIENTE';clase='client-alert';playSound('alerta_cliente');vibrarCorto();}else if(n.tipo==='CUENTA'){titulo='💶 PIDE LA CUENTA';clase='client-alert';playSound('alerta_cliente');vibrarCorto();}document.getElementById('notifOverlayTitle').textContent=titulo;var box=document.getElementById('notifOverlayBox');box.className='obox '+clase;bodyHtml+='<div class="oorder">';if(n.mesa)bodyHtml+='<div class="om">🪑 Mesa '+esc(n.mesa)+'</div>';if(n.emisorNombre)bodyHtml+='<div class="ot">De: '+esc(n.emisorNombre)+' ('+esc(n.emisorRol)+')</div>';if(n.items)bodyHtml+='<div class="oi">'+escL(n.items)+'</div>';if(n.extra)bodyHtml+='<div class="ot">'+esc(n.extra)+'</div>';bodyHtml+='<div class="ot" style="margin-top:6px;">'+ftime(n.createdAt)+'</div>';bodyHtml+='</div>';if(n.escalado)bodyHtml+='<div style="background:rgba(239,68,68,.15);border:1px solid var(--red);border-radius:8px;padding:10px;color:var(--red);font-weight:700;">⚠️ NADIE HA CONFIRMADO ESTA NOTIFICACIÓN EN 45s</div>';document.getElementById('notifOverlayBody').innerHTML=bodyHtml;document.getElementById('notifOverlay').classList.remove('hidden');pedirPermisoNotificaciones();if(document.visibilityState!=='visible'&&'Notification' in window&&Notification.permission==='granted'){try{var push=new Notification(titulo,{body:(n.mesa?'Mesa '+n.mesa+' — ':'')+(n.items||n.extra||'').substring(0,120),tag:n.id,requireInteraction:true});push.onclick=function(){window.focus();push.close();};}catch(e){}}}
 function ackNotifOverlay(){if(!currentNotifOverlay)return;var n=currentNotifOverlay;ackNotificacion(n.id).then(function(){currentNotifOverlay=null;document.getElementById('notifOverlay').classList.add('hidden');setTimeout(procesarNotificaciones,300);});}
 function pedirPermisoNotificaciones(){if('Notification' in window&&Notification.permission==='default'){try{Notification.requestPermission();}catch(e){}}}
-
 function cerrarOverlay(){overlayQueue=[];document.getElementById('overlay').classList.add('hidden');}
 function cerrarClientAlertOverlay(){clientAlertQueue=[];document.getElementById('clientAlertOverlay').classList.add('hidden');}
 function cerrarCocinaAlertOverlay(){cocinaAlertQueue=[];document.getElementById('cocinaAlertOverlay').classList.add('hidden');}
@@ -917,19 +910,101 @@ function confirmarAbrirTurno(){if(!requireFB())return;var eb=document.getElement
 function mostrarCerrarTurno(){if(!puedeCerrarTurno())return;var t=getTurnoActivo();if(!t){showToast('⚠️ Sin turno','error');return;}var stats=calcularTotalTurno(t.id);document.getElementById('closeTurnoResumen').innerHTML='<div>🟢 '+ftime(t.timestampInicio)+'</div><div>👤 '+esc(t.encargadoBarra)+'</div><div>📦 '+stats.numPedidos+'</div><div style="font-size:20px;color:var(--gold);font-weight:700;">💰 '+fp(stats.total)+'</div>';document.getElementById('closeTurnoEncCaja').value='';document.getElementById('closeTurnoEfectivo').value='';document.getElementById('closeTurnoTarjeta').value='';document.getElementById('closeTurnoNotas').value='';document.getElementById('closeTurnoDiff').innerHTML='<span style="color:var(--t2);">Introduce el dinero</span>';var efI=document.getElementById('closeTurnoEfectivo');var tarI=document.getElementById('closeTurnoTarjeta');var dE=document.getElementById('closeTurnoDiff');function calc(){var ef=Number(efI.value)||0,tar=Number(tarI.value)||0,tot=ef+tar,d=tot-stats.total;if(tot===0){dE.innerHTML='<span style="color:var(--t2);">Introduce el dinero</span>';return;}dE.innerHTML='💵 '+fp(ef)+' + 💳 '+fp(tar)+' = <b>'+fp(tot)+'</b> · '+(Math.abs(d)<0.01?'<span class="dif-ok">✅ CUADRA</span>':'<span class="'+(d>0?'dif-ok':'dif-bad')+'">'+(d>0?'+':'')+fp(d)+'</span>');}efI.oninput=calc;tarI.oninput=calc;document.getElementById('closeTurnoModal').classList.remove('hidden');}
 function cerrarCerrarTurno(){document.getElementById('closeTurnoModal').classList.add('hidden');}
 function confirmarCerrarTurno(){if(!requireFB())return;var t=getTurnoActivo();if(!t)return;var ec=document.getElementById('closeTurnoEncCaja').value.trim();var ef=Number(document.getElementById('closeTurnoEfectivo').value)||0;var tar=Number(document.getElementById('closeTurnoTarjeta').value)||0;var n=document.getElementById('closeTurnoNotas').value.trim();if(!ec){showToast('⚠️ Nombre','error');return;}var stats=calcularTotalTurno(t.id);var now=new Date();db.ref('turnos/'+t.id).update({horaFin:now.toTimeString().slice(0,5),timestampFin:now.getTime(),encargadoCaja:ec,estado:'cerrado',totalEsperado:stats.total,totalEfectivo:ef,totalTarjeta:tar,totalReal:ef+tar,diferencia:Math.round((ef+tar-stats.total)*100)/100,numPedidos:stats.numPedidos,notasCierre:n,updatedAtLocal:nowLocal()}).then(function(){showToast('✅ Turno cerrado','success');cerrarCerrarTurno();});}
+
+// ============================================================
+// 🛡️ SISTEMA DE BLOQUEO DEL CLIENTE
+// ============================================================
+
+// Destruye del DOM todos los paneles de staff para que el cliente no pueda verlos NUNCA
+function destruirPanelesStaff(){
+  var paneles=['superadminPanel','adminPanel','cocinaPanel','barraPanel','camareroPanel','menuPanel'];
+  paneles.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      el.innerHTML=''; // Vaciar contenido por si acaso
+      el.remove(); // Eliminar nodo entero
+    }
+  });
+  // Quitar cualquier botón o enlace que lleve a esas vistas
+  document.querySelectorAll('[onclick*="goView"]').forEach(function(el){el.remove();});
+  document.querySelectorAll('.mbtn').forEach(function(el){el.remove();});
+}
+
+// Bloquea con un flag persistente el acceso a staff tras pagar
+function marcarClienteBloqueado(){
+  var lock={
+    ts: nowLocal(),
+    expira: nowLocal() + (30 * 60 * 1000) // 30 minutos
+  };
+  try{ localStorage.setItem(KEY_LOCK, JSON.stringify(lock)); }catch(e){}
+  try{ sessionStorage.setItem(KEY_LOCK, JSON.stringify(lock)); }catch(e){}
+}
+
+// Comprueba si el cliente está bloqueado y redirige fuera
+function estaClienteBloqueado(){
+  try{
+    var raw = localStorage.getItem(KEY_LOCK) || sessionStorage.getItem(KEY_LOCK);
+    if(!raw) return false;
+    var lock = JSON.parse(raw);
+    if(Date.now() > lock.expira){
+      localStorage.removeItem(KEY_LOCK);
+      sessionStorage.removeItem(KEY_LOCK);
+      return false;
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
+// Verifica activamente el bloqueo (se llama desde varios sitios)
+function verificarBloqueoCliente(){
+  if(!estaClienteBloqueado()) return false;
+  // Si está bloqueado, limpiar TODO y salir a la raíz
+  try{
+    sessionStorage.removeItem(KEY_CID);
+    sessionStorage.removeItem(KEY_PAID);
+    sessionStorage.removeItem(KEY_DEVICE);
+    localStorage.removeItem(KEY_MESA);
+    localStorage.removeItem(KEY_ROLE);
+  }catch(e){}
+  var base = location.origin + location.pathname;
+  try{ window.location.replace(base); }catch(e){ location.href = base; }
+  return true;
+}
+
 function applyRole(){
+  // Si el cliente está bloqueado, no permitir entrar a NINGUNA vista
+  if(estaClienteBloqueado()){
+    verificarBloqueoCliente();
+    return;
+  }
+
   var ids=['menuPanel','adminPanel','clientPanel','cocinaPanel','barraPanel','camareroPanel','superadminPanel'];
   ids.forEach(function(id){var el=document.getElementById(id);if(el)el.classList.add('hidden');});
+
+  // Si es cliente → destruir TODA referencia visual a staff
+  if(role==='cliente'){
+    destruirPanelesStaff();
+  }
+
   var bs=document.getElementById('btnSalir'),rb=document.getElementById('roleBadge');
   if(bs)bs.style.display=role==='cliente'?'none':'inline-flex';
   if(rb){rb.textContent=role==='menu'?'-':(role==='superadmin'?'👑 SUPERADMIN':role.toUpperCase());rb.className='role'+(role==='cliente'?' cliente':role==='cocina'?' cocina':role==='barra'?' barra':role==='camarero'?' camarero':role==='admin'?' admin':role==='superadmin'?' superadmin':'');}
-  if(role==='menu'){document.getElementById('menuPanel').classList.remove('hidden');return;}
-  if(role==='cliente'){document.getElementById('clientPanel').classList.remove('hidden');if(mesaFija){document.getElementById('mesaTag').style.display='inline-flex';document.getElementById('mesaTagText').textContent=mesaFija;}}
-  else if(role==='cocina'){document.getElementById('cocinaPanel').classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();}
-  else if(role==='barra'){document.getElementById('barraPanel').classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();}
-  else if(role==='camarero'){document.getElementById('camareroPanel').classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();if(!myCamName)showCamModal();}
-  else if(role==='admin'){if(!sessionStorage.getItem('admin_auth')){mostrarLoginAdmin();return;}document.getElementById('adminPanel').classList.remove('hidden');requestWakeLock();}
-  else if(role==='superadmin'){if(!sessionStorage.getItem('superadmin_auth')){localStorage.removeItem(KEY_ROLE);mostrarLoginAdmin();return;}document.getElementById('superadminPanel').classList.remove('hidden');requestWakeLock();}
+
+  if(role==='menu'){
+    var mp=document.getElementById('menuPanel');
+    if(mp) mp.classList.remove('hidden');
+    return;
+  }
+  if(role==='cliente'){
+    var cp=document.getElementById('clientPanel');
+    if(cp) cp.classList.remove('hidden');
+    if(mesaFija){var mt=document.getElementById('mesaTag');if(mt){mt.style.display='inline-flex';}var mtt=document.getElementById('mesaTagText');if(mtt)mtt.textContent=mesaFija;}
+  }
+  else if(role==='cocina'){var e1=document.getElementById('cocinaPanel');if(e1)e1.classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();}
+  else if(role==='barra'){var e2=document.getElementById('barraPanel');if(e2)e2.classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();}
+  else if(role==='camarero'){var e3=document.getElementById('camareroPanel');if(e3)e3.classList.remove('hidden');requestWakeLock();pedirPermisoNotificaciones();if(!myCamName)showCamModal();}
+  else if(role==='admin'){if(!sessionStorage.getItem('admin_auth')){mostrarLoginAdmin();return;}var e4=document.getElementById('adminPanel');if(e4)e4.classList.remove('hidden');requestWakeLock();}
+  else if(role==='superadmin'){if(!sessionStorage.getItem('superadmin_auth')){localStorage.removeItem(KEY_ROLE);mostrarLoginAdmin();return;}var e5=document.getElementById('superadminPanel');if(e5)e5.classList.remove('hidden');requestWakeLock();}
   checkAudioState();
 }
 function renderAdminNotifs(){var box=document.getElementById('adminNotifList');if(!box)return;var list=notifications.slice().sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).slice(0,30);if(!list.length){box.innerHTML='<div class="empty">Sin notificaciones</div>';return;}box.innerHTML=list.map(function(n){var cls=n.ack?'ack':(n.escalado?'pending':'');var estado=n.ack?'✅ '+esc(n.ackBy):(n.escalado?'⚠️ ESCALADA':'⏳ Pendiente');return'<div class="notif-item '+cls+'"><div class="nhead"><b>'+esc(n.tipo)+'</b><span class="ntime">'+ftime(n.createdAt)+'</span></div><div class="nbody">Mesa '+esc(n.mesa||'-')+' · '+esc(n.emisorNombre||n.emisorRol)+' → '+esc(n.destinatarioRol)+'\n'+esc(n.items||n.extra||'')+'</div><div class="ntime">'+estado+'</div></div>';}).join('');}
@@ -946,14 +1021,56 @@ function renderMesas(){var b=document.getElementById('mesasList');if(!b)return;b
 function renderProdsAdmin(){var b=document.getElementById('prodList');if(!b)return;if(!productos.length){b.innerHTML='<div class="empty">No hay productos</div>';return;}b.innerHTML=productos.map(function(p){var img=p.foto?'<img style="width:60px;height:60px;object-fit:cover;border-radius:8px;" src="'+p.foto+'">':'<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:8px;font-size:24px;">🍽️</div>';return'<div class="alertrow" style="border-left-color:var(--gold);gap:12px;">'+img+'<div style="flex:1;"><b>'+esc(p.nombre||'')+'</b><div class="otime">'+fp(p.precio||0)+' · '+esc(p.categoria||'')+' · '+esc(p.destino||'')+'</div></div><div style="display:flex;gap:6px;"><button class="btn btn-grey btn-sm" onclick="editProd(\''+p.id+'\')">✏️</button><button class="btn btn-red btn-sm" onclick="delProd(\''+p.id+'\')">🗑️</button></div></div>';}).join('');}
 function renderProdCliente(){var b=document.getElementById('prodCliente');if(!b)return;var v=productos.filter(function(p){if(p.activo===false)return false;var cat=p.categoria||'bebidas';return cat===currentCategory;});if(!v.length){b.innerHTML='<div class="empty" style="grid-column:1/-1;">No hay productos</div>';return;}b.innerHTML=v.map(function(p){var img=p.foto?'<img class="prod-img" src="'+p.foto+'">':'<div class="prod-img ph">🍽️</div>';var pr=Number(p.precio)>0?'<div class="prod-price">'+fp(p.precio)+'</div>':'';return'<div class="prod">'+img+'<div class="prod-info"><div class="prod-name">'+esc(p.nombre||'')+'</div>'+pr+'<button class="prod-add" onclick="addCart(\''+p.id+'\')">➕ Añadir</button></div></div>';}).join('');}
 function renderCart(){var b=document.getElementById('cartList');if(!b)return;if(!cart.length){b.innerHTML='<div class="empty">Carrito vacío</div>';return;}b.innerHTML=cart.map(function(i){return'<div class="cartline"><div><b>'+i.qty+' x '+esc(i.nombre)+'</b>'+(i.precio?'<div class="otime">'+fp(i.precio*i.qty)+'</div>':'')+'</div><button class="btn btn-red btn-sm" onclick="quitCart(\''+i.id+'\',\''+esc(i.nombre).replace(/'/g,"\\'")+'\')">✕</button></div>';}).join('');}
-function renderClientFarewellCheck(){var ha=clientOrders.some(function(o){return o.estado!=='PAGADO'&&o.estado!=='CANCELADO';});var latest=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];var wp=sessionStorage.getItem(KEY_PAID)==='1';if(wp||(latest&&latest.estado==='PAGADO'&&!ha)){sessionStorage.setItem(KEY_PAID,'1');document.getElementById('farewellOverlay').classList.remove('hidden');document.getElementById('clientOrderUI').classList.add('hidden');document.getElementById('clientStateCard').classList.add('hidden');document.getElementById('totalCard').style.display='none';var rb=document.getElementById('roleBadge');if(rb)rb.style.display='none';var bs=document.getElementById('btnSalir');if(bs)bs.style.display='none';iniciarDesconexionCliente();}else{document.getElementById('farewellOverlay').classList.add('hidden');document.getElementById('clientOrderUI').classList.remove('hidden');if(farewellTimer){clearTimeout(farewellTimer);farewellTimer=null;}}}
-function iniciarDesconexionCliente(){if(farewellTimer)clearTimeout(farewellTimer);farewellTimer=setTimeout(function(){farewellTimer=null;desconectarCliente();},3000);document.addEventListener('keydown',bloquearNavegacionCliente,true);window.addEventListener('popstate',bloquearNavegacionCliente,true);}
-function bloquearNavegacionCliente(e){try{e.preventDefault();e.stopPropagation();}catch(err){}desconectarCliente();}
-function desconectarCliente(){sessionStorage.removeItem(KEY_CID);sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_DEVICE);localStorage.removeItem(KEY_MESA);localStorage.removeItem(KEY_ROLE);clientOrders=[];clientAlerts=[];cart=[];knownState={};knownAlerts={};notifsMostradas={};initialLoaded=false;var base=location.origin+location.pathname;try{window.location.replace(base);}catch(e){location.href=base;}}
-function renderClientState(){var c=document.getElementById('clientStateCard');var l=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];if(!l||l.estado==='PAGADO'||l.estado==='CANCELADO'){c.classList.add('hidden');return;}c.classList.remove('hidden');document.getElementById('clientStateValue').innerHTML='<span class="st '+stClass(l.estado)+'">'+stLabel(l.estado)+'</span>';document.getElementById('clientStateItems').textContent=(l.items||'').split('\n')[0];}
+function renderClientFarewellCheck(){
+  var ha=clientOrders.some(function(o){return o.estado!=='PAGADO'&&o.estado!=='CANCELADO';});
+  var latest=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];
+  var wp=sessionStorage.getItem(KEY_PAID)==='1';
+  if(wp||(latest&&latest.estado==='PAGADO'&&!ha)){
+    sessionStorage.setItem(KEY_PAID,'1');
+    marcarClienteBloqueado(); // 🛡️ Marcar bloqueado ANTES de cualquier otra cosa
+    var fo=document.getElementById('farewellOverlay');if(fo)fo.classList.remove('hidden');
+    var coui=document.getElementById('clientOrderUI');if(coui)coui.classList.add('hidden');
+    var csc=document.getElementById('clientStateCard');if(csc)csc.classList.add('hidden');
+    var tc=document.getElementById('totalCard');if(tc)tc.style.display='none';
+    var rb=document.getElementById('roleBadge');if(rb)rb.style.display='none';
+    var bs=document.getElementById('btnSalir');if(bs)bs.style.display='none';
+    iniciarDesconexionCliente();
+  }else{
+    var fo2=document.getElementById('farewellOverlay');if(fo2)fo2.classList.add('hidden');
+    var coui2=document.getElementById('clientOrderUI');if(coui2)coui2.classList.remove('hidden');
+    if(farewellTimer){clearTimeout(farewellTimer);farewellTimer=null;}
+  }
+}
+function iniciarDesconexionCliente(){
+  if(farewellTimer)clearTimeout(farewellTimer);
+  farewellTimer=setTimeout(function(){
+    farewellTimer=null;
+    desconectarCliente();
+  },3000);
+  // Bloquear todos los intentos de navegación
+  document.addEventListener('keydown',bloquearNavegacionCliente,true);
+  window.addEventListener('popstate',bloquearNavegacionCliente,true);
+}
+function bloquearNavegacionCliente(e){
+  try{e.preventDefault();e.stopPropagation();}catch(err){}
+  desconectarCliente();
+}
+function desconectarCliente(){
+  try{
+    sessionStorage.removeItem(KEY_CID);
+    sessionStorage.removeItem(KEY_PAID);
+    sessionStorage.removeItem(KEY_DEVICE);
+    localStorage.removeItem(KEY_MESA);
+    localStorage.removeItem(KEY_ROLE);
+  }catch(e){}
+  clientOrders=[];clientAlerts=[];cart=[];knownState={};knownAlerts={};notifsMostradas={};initialLoaded=false;
+  var base=location.origin+location.pathname;
+  try{window.location.replace(base);}catch(e){location.href=base;}
+}
+function renderClientState(){var c=document.getElementById('clientStateCard');if(!c)return;var l=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];if(!l||l.estado==='PAGADO'||l.estado==='CANCELADO'){c.classList.add('hidden');return;}c.classList.remove('hidden');document.getElementById('clientStateValue').innerHTML='<span class="st '+stClass(l.estado)+'">'+stLabel(l.estado)+'</span>';document.getElementById('clientStateItems').textContent=(l.items||'').split('\n')[0];}
 function renderClientOrders(){var b=document.getElementById('clientOrders');if(!b)return;if(!clientOrders.length){b.innerHTML='';return;}var s=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);});b.innerHTML='<h3 style="margin:10px 0;">📜 Historial</h3>'+s.map(function(o){return'<div class="order '+stClass(o.estado)+'"><div class="oitems">'+escL(o.items||'')+'</div><div class="ofoot"><span class="st '+stClass(o.estado)+'">'+stLabel(o.estado)+'</span><span class="otime">'+ftime(o.createdAtLocal)+'</span></div></div>';}).join('');}
 function renderClientStatus(){var b=document.getElementById('clientStatus');if(!b)return;if(!clientAlerts.length){b.textContent='';return;}var s=clientAlerts.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];b.textContent='Último aviso: '+(s.tipo==='PEDIR_CUENTA'?'💶 Cuenta':'🔔 Camarero')+' · '+(s.atendida?'✅ Atendido':'⏳ Pendiente');}
-function renderTotal(){var t=0;clientOrders.forEach(function(o){if(o.estado!=='CANCELADO'&&o.estado!=='PAGADO')t+=o.totalPedido||exTotal(o.items);});var c=document.getElementById('totalCard');if(t>0){c.style.display='block';document.getElementById('totalValue').textContent=fp(t);}else c.style.display='none';}
+function renderTotal(){var t=0;clientOrders.forEach(function(o){if(o.estado!=='CANCELADO'&&o.estado!=='PAGADO')t+=o.totalPedido||exTotal(o.items);});var c=document.getElementById('totalCard');if(!c)return;if(t>0){c.style.display='block';document.getElementById('totalValue').textContent=fp(t);}else c.style.display='none';}
 function urlQR(n){return location.origin+location.pathname+'?vista=cliente&mesa='+encodeURIComponent(n);}
 function mostrarTodosQR(){var pv=document.getElementById('qrPreview');if(!pv)return;if(!mesas.length){pv.classList.remove('hidden');pv.innerHTML='<div class="empty">Primero añade mesas</div>';return;}pv.classList.remove('hidden');pv.innerHTML='<div class="qr-grid" id="qrG"></div>';var g=document.getElementById('qrG');mesas.forEach(function(m,i){var url=urlQR(m.nombre||'');var c=document.createElement('div');c.className='qr-card';c.innerHTML='<div id="qrc'+i+'"></div><h4>'+esc(m.nombre)+'</h4><button class="btn btn-grey btn-sm" onclick="copiarURL(\''+encodeURIComponent(url)+'\')">📋 Copiar</button>';g.appendChild(c);setTimeout(function(){var el=document.getElementById('qrc'+i);if(el&&typeof QRCode!=='undefined')new QRCode(el,{text:url,width:140,height:140,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});},50);});}
 function copiarURL(enc){var url=decodeURIComponent(enc);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(function(){showToast('✅ Copiada','success');});else showToast(url);}
@@ -1056,9 +1173,9 @@ function exportarExcel(){if(typeof XLSX==='undefined'){showToast('❌ Excel','er
 function exportarHistorial(){if(typeof XLSX==='undefined'){showToast('❌ Excel','error');return;}if(!requireFB())return;var mi=document.getElementById('histMes');var mk=mi?mi.value:'';if(!mk){var n=new Date();mk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');}showToast('⏳ Cargando...','');db.ref('historial/'+mk).once('value').then(function(s){var d=s.val()||{};var keys=Object.keys(d);if(!keys.length){showToast('⚠️ Sin datos','error');return;}var data=keys.map(function(k){var p=d[k];return{'Fecha':p.createdAtLocal?new Date(p.createdAtLocal).toLocaleDateString('es-ES'):'','Mesa':p.mesa||'S/M','Productos':(p.items||'').replace(/\n/g,' | '),'Total (€)':p.totalPedido||exTotal(p.items)};});var ws=XLSX.utils.json_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Historial');XLSX.writeFile(wb,'historial_'+mk+'.xlsx');showToast('✅ Exportado','success');});}
 function crearLocal(){if(!requireFB())return;var n=document.getElementById('newLocalNombre').value.trim();var d=document.getElementById('newLocalDir').value.trim();if(!n){showToast('⚠️ Nombre','error');return;}db.ref('locales/'+newId()).set({nombre:n,direccion:d,activo:true,createdAtLocal:nowLocal()}).then(function(){document.getElementById('newLocalNombre').value='';document.getElementById('newLocalDir').value='';showToast('✅ Creado','success');log('CREAR_LOCAL',n);});}
 function crearUsuario(){if(!requireFB())return;var n=document.getElementById('uNombre').value.trim();var e=document.getElementById('uEmail').value.trim();var p=document.getElementById('uPass').value;var r=document.getElementById('uRol').value;if(!n||!e||!p){showToast('⚠️ Rellena','error');return;}db.ref('usuarios/'+newId()).set({nombre:n,email:e,passwordHash:hashPassword(p),rol:r,activo:true,createdAtLocal:nowLocal()}).then(function(){document.getElementById('uNombre').value='';document.getElementById('uEmail').value='';document.getElementById('uPass').value='';showToast('✅ Creado','success');log('CREAR_USUARIO',e);});}
-function verLogs(){if(!requireFB())return;db.ref('logs').limitToLast(50).once('value').then(function(s){var d=s.val()||{};var list=Object.keys(d).map(function(k){return d[k];}).reverse();var box=document.getElementById('logsList');if(!list.length){box.innerHTML='<div class="permnote">Sin eventos.</div>';return;}box.innerHTML=list.map(function(l){return'<div class="alertrow" style="border-left-color:var(--blue);"><div><b>'+esc(l.accion||'?')+'</b><div class="otime">'+esc(l.detalle||'')+'</div></div><span class="otime">'+ftime(l.createdAtLocal)+'</span></div>';}).join('');});}
+function verLogs(){if(!requireFB())return;db.ref('logs').limitToLast(50).once('value').then(function(s){var d=s.val()||{};var list=Object.keys(d).map(function(k){return d[k];}).reverse();var box=document.getElementById('logsList');if(!box)return;if(!list.length){box.innerHTML='<div class="permnote">Sin eventos.</div>';return;}box.innerHTML=list.map(function(l){return'<div class="alertrow" style="border-left-color:var(--blue);"><div><b>'+esc(l.accion||'?')+'</b><div class="otime">'+esc(l.detalle||'')+'</div></div><span class="otime">'+ftime(l.createdAtLocal)+'</span></div>';}).join('');});}
 function log(accion,detalle){if(!requireFB())return;db.ref('logs/'+newId()).set({accion:accion,detalle:detalle||'',usuario:role,createdAtLocal:nowLocal()}).catch(function(){});}
-function descargarBackup(){if(!requireFB())return;showToast('⏳ Generando...','');var tables=['pedidos','alertas','pagos','turnos','productos','mesas','camareros','historial','config','locales','usuarios','notificaciones','logs'];var proms=tables.map(function(t){return db.ref(t).once('value').then(function(s){return{key:t,val:s.val()||{}};});});Promise.all(proms).then(function(res){var backup={};res.forEach(function(r){backup[r.key]=r.val;});backup._meta={generado:new Date().toISOString(),version:'PROD-2026-10-11-DASH-LOCK'};var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);showToast('✅ Descargado','success');log('BACKUP','descarga');});}
+function descargarBackup(){if(!requireFB())return;showToast('⏳ Generando...','');var tables=['pedidos','alertas','pagos','turnos','productos','mesas','camareros','historial','config','locales','usuarios','notificaciones','logs'];var proms=tables.map(function(t){return db.ref(t).once('value').then(function(s){return{key:t,val:s.val()||{}};});});Promise.all(proms).then(function(res){var backup={};res.forEach(function(r){backup[r.key]=r.val;});backup._meta={generado:new Date().toISOString(),version:'PROD-2026-10-11-LOCKED'};var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);showToast('✅ Descargado','success');log('BACKUP','descarga');});}
 
 // ============================================================
 // SUSCRIPCIONES
@@ -1068,7 +1185,7 @@ function subscribeAll(){
   db.ref('mesas').on('value',function(s){var d=s.val()||{};mesas=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});mesas.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});renderAll();});
   db.ref('camareros').on('value',function(s){var d=s.val()||{};camareros=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});camareros.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='camarero'&&!myCamName)showCamModal();});
   if(role==='cliente'||role==='admin'||role==='barra'||role==='camarero'||role==='superadmin'){
-    db.ref('productos').on('value',function(s){var d=s.val()||{};productos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});productos.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='cliente')renderProdCliente();if(role==='admin'||role==='superadmin')renderProdsAdmin();if(role==='barra'&&!document.getElementById('manualOrderModal').classList.contains('hidden'))renderManualProds();if(role==='camarero'&&!document.getElementById('camareroOrderModal').classList.contains('hidden'))renderCamOrderProds();});
+    db.ref('productos').on('value',function(s){var d=s.val()||{};productos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});productos.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='cliente')renderProdCliente();if(role==='admin'||role==='superadmin')renderProdsAdmin();if(role==='barra'){var mo=document.getElementById('manualOrderModal');if(mo&&!mo.classList.contains('hidden'))renderManualProds();}if(role==='camarero'){var co=document.getElementById('camareroOrderModal');if(co&&!co.classList.contains('hidden'))renderCamOrderProds();}});
   }
   if(role==='cliente'){
     db.ref('pedidos').on('value',function(s){var d=s.val()||{};var all=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});clientOrders=all.filter(function(o){return o.clientId===clientId;});renderAll();});
@@ -1091,20 +1208,31 @@ setInterval(function(){if(isStaff())renderAll();},30000);
 // GUARDIA DE SEGURIDAD CLIENTE PAGADO
 // ============================================================
 function guardiaClientePagado(){
+  // 1. Si el cliente está marcado como bloqueado, sale inmediatamente
+  if(estaClienteBloqueado()){
+    console.warn('🔒 Cliente bloqueado detectado en boot()');
+    verificarBloqueoCliente();
+    return true;
+  }
+
   var urlVista=params.get('vista')||'';
   var wasPaid=sessionStorage.getItem(KEY_PAID)==='1';
   var hadClientSession=!!localStorage.getItem(KEY_MESA);
+
+  // 2. Si estaba pagado y viene con mesa, bloquea intentos de ir a staff
   if(wasPaid&&hadClientSession&&['cocina','barra','camarero','admin','superadmin'].indexOf(urlVista)!==-1){
     console.warn('🔒 Bloqueado: cliente pagado intentó acceder a '+urlVista);
-    sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);sessionStorage.removeItem(KEY_DEVICE);
-    localStorage.removeItem(KEY_MESA);localStorage.removeItem(KEY_ROLE);
+    marcarClienteBloqueado();
+    try{sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);sessionStorage.removeItem(KEY_DEVICE);localStorage.removeItem(KEY_MESA);localStorage.removeItem(KEY_ROLE);}catch(e){}
     var base=location.origin+location.pathname;
     try{window.location.replace(base);}catch(e){location.href=base;}
     return true;
   }
+
+  // 3. Si estaba pagado, limpiar y volver a la raíz
   if(wasPaid){
-    sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);
-    localStorage.removeItem(KEY_MESA);
+    marcarClienteBloqueado();
+    try{sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);localStorage.removeItem(KEY_MESA);}catch(e){}
     var base2=location.origin+location.pathname;
     try{window.location.replace(base2);}catch(e){location.href=base2;}
     return true;
@@ -1119,8 +1247,13 @@ function boot(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 
-// Segunda guardia: si el cliente recibe pago mientras navega → salir YA
+// Guardia cada 3 segundos: si el cliente está bloqueado o pagado, sale
 setInterval(function(){
+  // Comprobación global de bloqueo (independientemente del rol)
+  if(estaClienteBloqueado()){
+    verificarBloqueoCliente();
+    return;
+  }
   if(role!=='cliente')return;
   if(sessionStorage.getItem(KEY_PAID)==='1')return;
   var hasActive=clientOrders.some(function(o){return o.estado!=='PAGADO'&&o.estado!=='CANCELADO';});
@@ -1128,15 +1261,32 @@ setInterval(function(){
   if(latest&&latest.estado==='PAGADO'&&!hasActive){
     console.log('💰 Cliente pagado detectado por guardia');
     sessionStorage.setItem(KEY_PAID,'1');
-    document.getElementById('farewellOverlay').classList.remove('hidden');
-    document.getElementById('clientOrderUI').classList.add('hidden');
-    document.getElementById('clientStateCard').classList.add('hidden');
-    document.getElementById('totalCard').style.display='none';
+    marcarClienteBloqueado();
+    var fo=document.getElementById('farewellOverlay');if(fo)fo.classList.remove('hidden');
+    var coui=document.getElementById('clientOrderUI');if(coui)coui.classList.add('hidden');
+    var csc=document.getElementById('clientStateCard');if(csc)csc.classList.add('hidden');
+    var tc=document.getElementById('totalCard');if(tc)tc.style.display='none';
     var rb=document.getElementById('roleBadge');if(rb)rb.style.display='none';
     var bs=document.getElementById('btnSalir');if(bs)bs.style.display='none';
     iniciarDesconexionCliente();
   }
-},2000);
+},3000);
+
+// Bloqueo de navegación por URL: si intenta cambiar la URL manualmente
+window.addEventListener('popstate',function(){
+  if(estaClienteBloqueado()){
+    verificarBloqueoCliente();
+    return;
+  }
+  if(role==='cliente'){
+    var urlVista=params.get('vista')||'';
+    if(['cocina','barra','camarero','admin','superadmin'].indexOf(urlVista)!==-1){
+      console.warn('🔒 Bloqueado intento de navegación a '+urlVista);
+      var base=location.origin+location.pathname;
+      try{window.location.replace(base);}catch(e){location.href=base;}
+    }
+  }
+});
 </script>
 </body>
 </html>

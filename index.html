@@ -554,9 +554,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 </div>
 <div id="farewellOverlay" class="overlay hidden">
   <div class="obox farewell">
-    <div class="otitle">✅ Cuenta Pagada</div>
-    <p style="font-size:20px;margin:24px 0;line-height:1.6;color:var(--t1);">Gracias por su visita.<br>Hemos estado encantados de servirle.<br><strong style="color:var(--gold);">¡Vuelva pronto!</strong></p>
-    <div style="font-size:60px;margin-top:15px;">👋</div>
+    <p style="font-size:22px;margin:10px 0;line-height:1.7;color:var(--t1);">Gracias por su visita.<br>Esperamos verle pronto.</p>
+  </div>
+</div>
+<div id="exitScreen" class="overlay hidden">
+  <div class="obox farewell">
+    <p style="font-size:22px;margin:10px 0;line-height:1.7;color:var(--t1);">Gracias por su visita.<br>Esperamos verle pronto.</p>
   </div>
 </div>
 
@@ -628,7 +631,7 @@ var cart=[],manualCart=[],camOrderCart=[],pendingFoto='',overlayQueue=[],clientA
 var currentCategory='bebidas',manualCategory='bebidas',camOrderCategory='bebidas';
 var pendingImportData=null,editProdId=null,editProdFoto='';
 var pagoMesaActual='',pagoPedidos=[],pagoTotal=0,pagoMetodo='';
-var farewellTimer=null;
+var farewellTimer=null;var farewellEnCurso=false;
 var currentNotifOverlay=null;
 var currentMesaCamarero=null;
 var currentAdTab='ad-inicio',currentCoTab='co-inicio',currentBaTab='ba-inicio',currentCmTab='cm-inicio',currentSATab='sa-inicio';
@@ -932,33 +935,25 @@ function destruirPanelesStaff(){
 
 // Bloquea con un flag persistente el acceso a staff tras pagar
 function marcarClienteBloqueado(){
-  var lock={
-    ts: nowLocal(),
-    expira: nowLocal() + (30 * 60 * 1000) // 30 minutos
-  };
+  // Sin caducidad: el bloqueo dura hasta que el cliente escanee de nuevo un QR
+  // (o hasta que borre los datos del navegador).
+  var lock={ ts: nowLocal() };
   try{ localStorage.setItem(KEY_LOCK, JSON.stringify(lock)); }catch(e){}
   try{ sessionStorage.setItem(KEY_LOCK, JSON.stringify(lock)); }catch(e){}
 }
 
-// Comprueba si el cliente está bloqueado y redirige fuera
+// Comprueba si el cliente está bloqueado
 function estaClienteBloqueado(){
   try{
-    var raw = localStorage.getItem(KEY_LOCK) || sessionStorage.getItem(KEY_LOCK);
-    if(!raw) return false;
-    var lock = JSON.parse(raw);
-    if(Date.now() > lock.expira){
-      localStorage.removeItem(KEY_LOCK);
-      sessionStorage.removeItem(KEY_LOCK);
-      return false;
-    }
-    return true;
+    return !!(localStorage.getItem(KEY_LOCK) || sessionStorage.getItem(KEY_LOCK));
   }catch(e){ return false; }
 }
 
-// Verifica activamente el bloqueo (se llama desde varios sitios)
-function verificarBloqueoCliente(){
-  if(!estaClienteBloqueado()) return false;
-  // Si está bloqueado, limpiar TODO y salir a la raíz
+// Pantalla de salida definitiva: limpia la sesión, quita la navegación y deja
+// al cliente en una pantalla fija de despedida (los navegadores no permiten
+// cerrar la pestaña desde JS si no la abrió un script).
+function mostrarPantallaSalida(){
+  farewellEnCurso=false;
   try{
     sessionStorage.removeItem(KEY_CID);
     sessionStorage.removeItem(KEY_PAID);
@@ -966,15 +961,35 @@ function verificarBloqueoCliente(){
     localStorage.removeItem(KEY_MESA);
     localStorage.removeItem(KEY_ROLE);
   }catch(e){}
-  var base = location.origin + location.pathname;
-  try{ window.location.replace(base); }catch(e){ location.href = base; }
+  clientOrders=[];clientAlerts=[];cart=[];knownState={};knownAlerts={};notifsMostradas={};initialLoaded=false;
+  try{ destruirPanelesStaff(); }catch(e){}
+  ['clientPanel','farewellOverlay','overlay','clientAlertOverlay','notifOverlay','cocinaAlertOverlay','barraAlertOverlay','pagoModal','camModal'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.classList.add('hidden');
+  });
+  var rb=document.getElementById('roleBadge'); if(rb) rb.style.display='none';
+  var bs=document.getElementById('btnSalir'); if(bs) bs.style.display='none';
+  // Limpiar la URL (quita ?vista=...&mesa=...) sin recargar
+  try{ history.replaceState(null,'',location.pathname); }catch(e){}
+  var es=document.getElementById('exitScreen'); if(es) es.classList.remove('hidden');
+  // Intentar sacar al cliente de la web cerrando la pestaña. Los navegadores
+  // solo lo permiten en pestañas abiertas por script; si no, queda la pantalla
+  // de salida como estado final fuera de la aplicación.
+  try{ window.close(); }catch(e){}
+}
+
+// Verifica activamente el bloqueo (se llama desde varios sitios)
+function verificarBloqueoCliente(){
+  if(!estaClienteBloqueado()) return false;
+  // Si está bloqueado, limpiar TODO y dejar pantalla de salida (sin recargar)
+  mostrarPantallaSalida();
   return true;
 }
 
 function applyRole(){
   // Si el cliente está bloqueado, no permitir entrar a NINGUNA vista
   if(estaClienteBloqueado()){
-    verificarBloqueoCliente();
+    // No interrumpir la despedida: su temporizador ya gestiona la salida
+    if(!farewellEnCurso) verificarBloqueoCliente();
     return;
   }
 
@@ -1042,6 +1057,7 @@ function renderClientFarewellCheck(){
   }
 }
 function iniciarDesconexionCliente(){
+  farewellEnCurso=true;
   if(farewellTimer)clearTimeout(farewellTimer);
   farewellTimer=setTimeout(function(){
     farewellTimer=null;
@@ -1056,16 +1072,7 @@ function bloquearNavegacionCliente(e){
   desconectarCliente();
 }
 function desconectarCliente(){
-  try{
-    sessionStorage.removeItem(KEY_CID);
-    sessionStorage.removeItem(KEY_PAID);
-    sessionStorage.removeItem(KEY_DEVICE);
-    localStorage.removeItem(KEY_MESA);
-    localStorage.removeItem(KEY_ROLE);
-  }catch(e){}
-  clientOrders=[];clientAlerts=[];cart=[];knownState={};knownAlerts={};notifsMostradas={};initialLoaded=false;
-  var base=location.origin+location.pathname;
-  try{window.location.replace(base);}catch(e){location.href=base;}
+  mostrarPantallaSalida();
 }
 function renderClientState(){var c=document.getElementById('clientStateCard');if(!c)return;var l=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);})[0];if(!l||l.estado==='PAGADO'||l.estado==='CANCELADO'){c.classList.add('hidden');return;}c.classList.remove('hidden');document.getElementById('clientStateValue').innerHTML='<span class="st '+stClass(l.estado)+'">'+stLabel(l.estado)+'</span>';document.getElementById('clientStateItems').textContent=(l.items||'').split('\n')[0];}
 function renderClientOrders(){var b=document.getElementById('clientOrders');if(!b)return;if(!clientOrders.length){b.innerHTML='';return;}var s=clientOrders.slice().sort(function(a,b){return(b.createdAtLocal||0)-(a.createdAtLocal||0);});b.innerHTML='<h3 style="margin:10px 0;">📜 Historial</h3>'+s.map(function(o){return'<div class="order '+stClass(o.estado)+'"><div class="oitems">'+escL(o.items||'')+'</div><div class="ofoot"><span class="st '+stClass(o.estado)+'">'+stLabel(o.estado)+'</span><span class="otime">'+ftime(o.createdAtLocal)+'</span></div></div>';}).join('');}
@@ -1208,6 +1215,23 @@ setInterval(function(){if(isStaff())renderAll();},30000);
 // GUARDIA DE SEGURIDAD CLIENTE PAGADO
 // ============================================================
 function guardiaClientePagado(){
+  var urlVista=params.get('vista')||'';
+
+  // 0. Re-escanear un QR de mesa es la única vía de reentrada: levanta el
+  // bloqueo y abre una sesión de cliente nueva. (Técnicamente no se puede
+  // distinguir un escaneo físico de abrir la misma URL en este navegador.)
+  var esQR=urlVista==='cliente'&&!!params.get('mesa');
+  if(esQR){
+    var reentrada=estaClienteBloqueado()||sessionStorage.getItem(KEY_PAID)==='1';
+    try{localStorage.removeItem(KEY_LOCK);sessionStorage.removeItem(KEY_LOCK);sessionStorage.removeItem(KEY_PAID);}catch(e){}
+    if(reentrada){
+      // Sesión limpia: nuevo identificador de cliente para no arrastrar pedidos pagados
+      clientId='c_'+Math.random().toString(36).slice(2)+'_'+Date.now();
+      try{sessionStorage.setItem(KEY_CID,clientId);}catch(e){}
+    }
+    return false;
+  }
+
   // 1. Si el cliente está marcado como bloqueado, sale inmediatamente
   if(estaClienteBloqueado()){
     console.warn('🔒 Cliente bloqueado detectado en boot()');
@@ -1215,7 +1239,17 @@ function guardiaClientePagado(){
     return true;
   }
 
-  var urlVista=params.get('vista')||'';
+  // 1b. Un dispositivo que entró escaneando un QR es de un cliente: las rutas
+  // de staff no se abren en él (ni siquiera el login); vuelve a su vista de
+  // cliente. No cambia credenciales ni el acceso normal desde otros equipos.
+  var mesaGuardada=''; try{mesaGuardada=localStorage.getItem(KEY_MESA)||'';}catch(e){}
+  if(mesaGuardada&&['barra','cocina','camarero','admin','superadmin'].indexOf(urlVista)!==-1){
+    console.warn('🔒 Dispositivo de cliente intentó abrir '+urlVista);
+    var dest=location.pathname+'?vista=cliente&mesa='+encodeURIComponent(mesaGuardada);
+    try{window.location.replace(dest);}catch(e){location.href=dest;}
+    return true;
+  }
+
   var wasPaid=sessionStorage.getItem(KEY_PAID)==='1';
   var hadClientSession=!!localStorage.getItem(KEY_MESA);
 
@@ -1223,18 +1257,14 @@ function guardiaClientePagado(){
   if(wasPaid&&hadClientSession&&['cocina','barra','camarero','admin','superadmin'].indexOf(urlVista)!==-1){
     console.warn('🔒 Bloqueado: cliente pagado intentó acceder a '+urlVista);
     marcarClienteBloqueado();
-    try{sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);sessionStorage.removeItem(KEY_DEVICE);localStorage.removeItem(KEY_MESA);localStorage.removeItem(KEY_ROLE);}catch(e){}
-    var base=location.origin+location.pathname;
-    try{window.location.replace(base);}catch(e){location.href=base;}
+    mostrarPantallaSalida();
     return true;
   }
 
-  // 3. Si estaba pagado, limpiar y volver a la raíz
+  // 3. Si estaba pagado, limpiar y dejar pantalla de salida
   if(wasPaid){
     marcarClienteBloqueado();
-    try{sessionStorage.removeItem(KEY_PAID);sessionStorage.removeItem(KEY_CID);localStorage.removeItem(KEY_MESA);}catch(e){}
-    var base2=location.origin+location.pathname;
-    try{window.location.replace(base2);}catch(e){location.href=base2;}
+    mostrarPantallaSalida();
     return true;
   }
   return false;
@@ -1251,7 +1281,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 setInterval(function(){
   // Comprobación global de bloqueo (independientemente del rol)
   if(estaClienteBloqueado()){
-    verificarBloqueoCliente();
+    // No interrumpir la despedida: su temporizador ya gestiona la salida
+    if(!farewellEnCurso) verificarBloqueoCliente();
     return;
   }
   if(role!=='cliente')return;
@@ -1282,11 +1313,12 @@ window.addEventListener('popstate',function(){
     var urlVista=params.get('vista')||'';
     if(['cocina','barra','camarero','admin','superadmin'].indexOf(urlVista)!==-1){
       console.warn('🔒 Bloqueado intento de navegación a '+urlVista);
-      var base=location.origin+location.pathname;
-      try{window.location.replace(base);}catch(e){location.href=base;}
+      marcarClienteBloqueado();
+      mostrarPantallaSalida();
     }
   }
 });
 </script>
 </body>
 </html>
+

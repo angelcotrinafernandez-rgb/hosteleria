@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>🍽️ Hostelería Pro</title>
+<!-- VOZ 2026-11-07: Pedir a mano / Dictar mi pedido (voz a texto en servidor, confirmación antes de enviar) -->
 <!-- VERSION: PROD-2026-10-11-LOCKED-CLIENT -->
 <style>
 :root{--bg:#0a0a0f;--bg2:#13131a;--card:#1a1a24;--border:#2a2a38;--t1:#f4f4f5;--t2:#a1a1aa;--t3:#71717a;--gold:#f59e0b;--green:#10b981;--blue:#3b82f6;--red:#ef4444;--purple:#8b5cf6;--orange:#f97316;}
@@ -405,8 +406,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     <div class="card statecard hidden" id="clientStateCard"><div style="font-size:12px;color:var(--t2);text-transform:uppercase;">Estado de tu último pedido</div><b id="clientStateValue"></b><div id="clientStateItems" class="otime" style="margin-top:4px;"></div></div>
     <div class="card totalcard" id="totalCard" style="display:none;"><div style="font-size:12px;color:var(--t2);text-transform:uppercase;">Total de tu cuenta</div><b id="totalValue">0,00 €</b></div>
     <div id="clientOrderUI">
-      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;"><button class="btn btn-gold btn-block" onclick="toggleCarta()">🍽️ Ver carta y pedir</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button class="btn btn-grey" onclick="enviarAlerta('LLAMAR_CAMARERO')">🔔 Llamar camarero</button><button class="btn btn-grey" onclick="enviarAlerta('PEDIR_CUENTA')">💶 Pedir cuenta</button></div></div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button class="btn btn-gold" onclick="pedirAMano()">✋ Pedir a mano</button><button class="btn btn-green" onclick="abrirDictado()">🎤 Dictar mi pedido</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button class="btn btn-grey" onclick="enviarAlerta('LLAMAR_CAMARERO')">🔔 Llamar camarero</button><button class="btn btn-grey" onclick="enviarAlerta('PEDIR_CUENTA')">💶 Pedir cuenta</button></div></div>
       <div id="clientStatus" style="text-align:center;color:var(--t2);margin-bottom:20px;"></div>
+      <div id="dictarPanel" class="hidden">
+        <style>
+          #btnMic.grabando{background:linear-gradient(135deg,var(--red),#dc2626)!important;animation:micpulse 1.2s infinite;}
+          @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55);}70%{box-shadow:0 0 0 20px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}
+        </style>
+        <div class="card"><h3>🎤 Dictar mi pedido</h3>
+          <div class="permnote" style="margin-bottom:10px;">Pulsa el micro y dime tu pedido. Por ejemplo: «dos cervezas y una tapa de calamares».</div>
+          <div style="text-align:center;margin:16px 0;">
+            <button id="btnMic" onclick="toggleDictado()" style="border-radius:50%;width:88px;height:88px;font-size:36px;border:0;background:linear-gradient(135deg,var(--green),#059669);color:#fff;cursor:pointer;">🎤</button>
+            <div id="dicEstado" style="margin-top:10px;color:var(--t2);font-size:14px;">Pulsa el micro para hablar</div>
+          </div>
+          <div id="dicTextoWrap" class="hidden" style="margin-bottom:12px;">
+            <div style="font-size:12px;color:var(--t2);text-transform:uppercase;">He entendido</div>
+            <div id="dicTexto" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:4px;font-size:15px;"></div>
+          </div>
+          <div id="dicPropWrap" class="hidden">
+            <div style="font-size:12px;color:var(--t2);text-transform:uppercase;margin-bottom:6px;">Tu pedido · revísalo antes de enviar</div>
+            <div id="dicPropLista"></div>
+            <div id="dicNoEnc" style="margin-top:8px;"></div>
+            <div id="dicTotal" style="margin-top:10px;font-weight:700;"></div>
+            <button class="btn btn-green btn-block" onclick="confirmarDictado()" style="margin-top:12px;">✅ Confirmar y enviar a barra/cocina</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+            <button class="btn btn-grey" onclick="repetirDictado()">🎤 Repetir</button>
+            <button class="btn btn-grey" onclick="pedirAMano()">✋ Pedir a mano</button>
+          </div>
+          <details style="margin-top:14px;"><summary style="font-size:12px;color:var(--t3);cursor:pointer;">¿No te oye bien? Sube el audio o escríbelo</summary>
+            <div style="margin-top:8px;"><input class="input" id="dicFile" type="file" accept="audio/*" onchange="dicFileChange()"/></div>
+            <div style="display:flex;gap:8px;margin-top:8px;"><input class="input" id="dicTextoManual" placeholder="Escribe tu pedido: 2 cervezas y…" style="flex:1;"/><button class="btn btn-grey btn-sm" onclick="dicDesdeTexto()">➡️</button></div>
+          </details>
+        </div>
+      </div>
       <div id="cartaPanel" class="hidden">
         <div class="card"><h3>📖 Nuestra carta</h3><div class="tabs" id="categoryTabs"><div class="tab active" data-cat="bebidas" onclick="switchCategory('bebidas')">🍺 Bebidas</div><div class="tab" data-cat="tapas" onclick="switchCategory('tapas')">🥘 Tapas</div><div class="tab" data-cat="raciones" onclick="switchCategory('raciones')">🍖 Raciones</div><div class="tab" data-cat="menus" onclick="switchCategory('menus')">📜 Menús</div></div><div id="prodCliente" class="prods"><div class="empty" style="grid-column:1/-1;">Cargando carta...</div></div></div>
         <div class="card"><h3>🛒 Tu pedido</h3><div id="cartList"><div class="empty">Carrito vacío</div></div><textarea class="textarea" id="manualItems" placeholder="Notas (opcional)"></textarea><button class="btn btn-green btn-block" onclick="crearPedido()" style="margin-top:12px;">✅ Enviar pedido</button><div id="clientOrders" style="margin-top:16px;"></div></div>
@@ -1088,6 +1121,104 @@ function imprimirTodosQR(){if(!mesas.length){showToast('⚠️ Sin mesas','error
 function addCart(id){var p=null;productos.forEach(function(x){if(x.id===id)p=x;});if(!p)return;if(p.tieneTamanos&&(p.categoria||'bebidas')==='raciones'){abrirSizeModal(p,'cliente');return;}addCartWithPrice(p,p.precio,p.nombre);}
 function addCartWithPrice(p,precio,nombre){var nombreFinal=nombre||p.nombre;var e=null;cart.forEach(function(x){if(x.id===p.id&&x.nombre===nombreFinal)e=x;});if(e)e.qty++;else cart.push({id:p.id,nombre:nombreFinal,precio:Number(precio)||0,qty:1,destino:p.destino||(p.categoria==='bebidas'?'barra':'cocina')});renderCart();showToast('✅ Añadido','success');}
 function quitCart(id,nombre){cart=cart.filter(function(x){return!(x.id===id&&x.nombre===nombre);});renderCart();}
+// === DICTAR MI PEDIDO (voz a texto vía servidor de demos; la clave vive solo en el servidor) ===
+var VOZ_URL='https://comunigest-actas.comunigest-demo.workers.dev/transcribe';
+var VOZ_PIN='1234';
+var mediaRec=null,dicChunks=[],dicStream=null,dicItems=[],dicPendientes=[];
+function pedirAMano(){pararMicSiActivo();var dp=document.getElementById('dictarPanel');if(dp)dp.classList.add('hidden');var cp=document.getElementById('cartaPanel');if(cp)cp.classList.remove('hidden');}
+function abrirDictado(){var cp=document.getElementById('cartaPanel');if(cp)cp.classList.add('hidden');var dp=document.getElementById('dictarPanel');if(dp)dp.classList.remove('hidden');reiniciarDictado();}
+function repetirDictado(){reiniciarDictado();}
+function reiniciarDictado(){pararMicSiActivo();dicItems=[];dicPendientes=[];setDicEstado('Pulsa el micro para hablar');['dicTextoWrap','dicPropWrap'].forEach(function(i){var e=document.getElementById(i);if(e)e.classList.add('hidden');});var dm=document.getElementById('dicTextoManual');if(dm)dm.value='';var df=document.getElementById('dicFile');if(df)df.value='';var bm=document.getElementById('btnMic');if(bm)bm.classList.remove('grabando');}
+function setDicEstado(t,err){var e=document.getElementById('dicEstado');if(e){e.textContent=t;e.style.color=err?'var(--red)':'var(--t2)';}}
+function pararMicSiActivo(){if(mediaRec&&mediaRec.state==='recording'){try{mediaRec.stop();}catch(e){}}if(dicStream){try{dicStream.getTracks().forEach(function(t){t.stop();});}catch(e){}dicStream=null;}var bm=document.getElementById('btnMic');if(bm)bm.classList.remove('grabando');}
+function toggleDictado(){
+  if(mediaRec&&mediaRec.state==='recording'){setDicEstado('Procesando…');try{mediaRec.stop();}catch(e){}return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){setDicEstado('Este navegador no puede grabar. Usa «sube el audio» de abajo.',true);return;}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+    dicStream=st;dicChunks=[];
+    var mt='';var cands=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'];
+    if(MediaRecorder.isTypeSupported){for(var i=0;i<cands.length;i++){if(MediaRecorder.isTypeSupported(cands[i])){mt=cands[i];break;}}}
+    try{mediaRec=mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){setDicEstado('No puedo grabar aquí. Usa «sube el audio».',true);return;}
+    mediaRec.ondataavailable=function(ev){if(ev.data&&ev.data.size)dicChunks.push(ev.data);};
+    mediaRec.onstop=function(){var tipo=mediaRec.mimeType||'audio/webm';var bm=document.getElementById('btnMic');if(bm)bm.classList.remove('grabando');procesarAudioVoz(new Blob(dicChunks,{type:tipo}),tipo);};
+    mediaRec.start();var bm=document.getElementById('btnMic');if(bm)bm.classList.add('grabando');
+    setDicEstado('🔴 Grabando… toca el micro cuando termines');
+  }).catch(function(){setDicEstado('No puedo acceder al micrófono. Usa «sube el audio» de abajo.',true);});
+}
+function dicFileChange(){var f=document.getElementById('dicFile');if(f&&f.files&&f.files[0]){setDicEstado('Procesando…');procesarAudioVoz(f.files[0],f.files[0].type||'audio/mpeg');}}
+function dicDesdeTexto(){var el=document.getElementById('dicTextoManual');var t=(el&&el.value||'').trim();if(!t)return;mostrarTextoDictado(t);}
+function procesarAudioVoz(blob,tipo){
+  var ext=(tipo.indexOf('mp4')>-1)?'m4a':(tipo.indexOf('mpeg')>-1?'mp3':(tipo.indexOf('ogg')>-1?'ogg':'webm'));
+  var fd=new FormData();fd.append('file',blob,'pedido.'+ext);
+  fetch(VOZ_URL,{method:'POST',headers:{'X-Pin':VOZ_PIN},body:fd}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(x){
+    if(!x.ok){setDicEstado('El servicio de voz no ha podido ahora. Prueba otra vez.',true);return;}
+    var t=(x.j&&x.j.text||'').trim();
+    if(!t){setDicEstado('No te he entendido. Pulsa el micro y repite, por favor.',true);return;}
+    mostrarTextoDictado(t);
+  }).catch(function(){setDicEstado('Sin conexión con el servicio de voz. Prueba otra vez.',true);});
+}
+function mostrarTextoDictado(t){
+  var w=document.getElementById('dicTextoWrap');if(w)w.classList.remove('hidden');
+  document.getElementById('dicTexto').textContent='«'+t+'»';
+  var r=parseDictado(t);dicItems=r.items;dicPendientes=r.restos;renderDicPropuesta();
+  setDicEstado(r.items.length?'Revísalo y pulsa Confirmar':'No he encontrado nada de la carta. Repite o pide a mano.',!r.items.length);
+}
+function normVoz(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+var VOZ_NUMS={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+function stemVoz(w){return w.replace(/(es|s)$/,'');}
+function parseDictado(texto){
+  var palabras=normVoz(texto).split(/[^a-z0-9]+/).filter(function(w){return w;});
+  var usado=palabras.map(function(){return false;});
+  var prods=(productos||[]).filter(function(p){return p.activo!==false;}).slice();
+  prods.sort(function(a,b){return normVoz(b.nombre||'').split(' ').length-normVoz(a.nombre||'').split(' ').length;});
+  var items=[];
+  prods.forEach(function(p){
+    var nw=normVoz(p.nombre||'').split(/[^a-z0-9]+/).filter(function(w){return w&&w.length>2;}).map(stemVoz);
+    if(!nw.length)return;
+    var idxs=[],start=0,okAll=true;
+    for(var j=0;j<nw.length;j++){
+      var found=-1;
+      for(var i=start;i<palabras.length;i++){if(!usado[i]&&(palabras[i].indexOf(nw[j])===0||stemVoz(palabras[i])===nw[j])){found=i;break;}}
+      if(found===-1){okAll=false;break;}
+      idxs.push(found);start=found+1;
+    }
+    if(!okAll)return;
+    var qty=1;
+    for(var k=idxs[0]-1;k>=0&&k>=idxs[0]-3;k--){
+      if(usado[k])continue;
+      var w=palabras[k];
+      if(/^\d+$/.test(w)){qty=parseInt(w,10);usado[k]=true;break;}
+      if(VOZ_NUMS[w]){qty=VOZ_NUMS[w];usado[k]=true;break;}
+    }
+    idxs.forEach(function(i){usado[i]=true;});
+    items.push({id:p.id,nombre:p.nombre,precio:Number(p.precio)||0,qty:qty,destino:p.destino||(p.categoria==='bebidas'?'barra':'cocina'),_pos:idxs[0]});
+  });
+  items.sort(function(a,b){return a._pos-b._pos;});
+  var STOP=['y','e','o','u','con','de','del','el','la','los','las','para','por','favor','me','mi','nos','pon','pone','pones','ponme','quiero','quisiera','dame','trae','traeme','un','una','a','al','en','que','sea','pues','venga','anda','mesa','gracias','tapa','tapas','racion','raciones','media','pincho','pinchos','copa','copas','vaso','vasos','botella','cana','canas','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce'];
+  var restos=palabras.filter(function(w,i){return !usado[i]&&STOP.indexOf(w)===-1&&w.length>2&&!/^\d+$/.test(w);});
+  return {items:items,restos:restos};
+}
+function renderDicPropuesta(){
+  var wrap=document.getElementById('dicPropWrap');var lista=document.getElementById('dicPropLista');
+  if(!dicItems.length){if(wrap)wrap.classList.add('hidden');return;}
+  wrap.classList.remove('hidden');
+  lista.innerHTML=dicItems.map(function(it,ix){
+    return '<div class="cartline"><div><b>'+it.qty+' x '+esc(it.nombre)+'</b>'+(it.precio?'<div class="otime">'+fp(it.precio*it.qty)+'</div>':'')+'</div><div style="display:flex;gap:6px;align-items:center;"><button class="btn btn-grey btn-sm" onclick="dicQty('+ix+',-1)">−</button><button class="btn btn-grey btn-sm" onclick="dicQty('+ix+',1)">+</button><button class="btn btn-red btn-sm" onclick="dicQuitar('+ix+')">✕</button></div></div>';
+  }).join('');
+  var tot=dicItems.reduce(function(a,b){return a+b.qty*b.precio;},0);
+  document.getElementById('dicTotal').textContent='Total: '+fp(tot);
+  var b=document.getElementById('dicNoEnc');
+  if(b){b.innerHTML=dicPendientes.length?'<div class="permnote">No lo tengo en la carta: <b>'+esc(dicPendientes.join(' '))+'</b> <button class="btn btn-grey btn-sm" onclick="dicComoNota()">📝 Añadir como nota</button></div>':'';}
+}
+function dicQty(ix,d){if(!dicItems[ix])return;dicItems[ix].qty+=d;if(dicItems[ix].qty<1)dicItems[ix].qty=1;renderDicPropuesta();}
+function dicQuitar(ix){dicItems.splice(ix,1);renderDicPropuesta();if(!dicItems.length)setDicEstado('Pedido vacío. Repite o pide a mano.');}
+function dicComoNota(){var mi=document.getElementById('manualItems');if(mi&&dicPendientes.length){mi.value=(mi.value?mi.value+' · ':'')+'🎤 '+dicPendientes.join(' ');dicPendientes=[];renderDicPropuesta();showToast('📝 Apuntado en notas','success');}}
+function confirmarDictado(){
+  if(!dicItems.length)return;
+  cart=dicItems.map(function(x){return{id:x.id,nombre:x.nombre,precio:x.precio,qty:x.qty,destino:x.destino};});
+  var dp=document.getElementById('dictarPanel');if(dp)dp.classList.add('hidden');
+  renderCart();crearPedido();
+}
 function crearPedido(){
   if(!requireFB())return;
   var mesa=mesaFija||'';

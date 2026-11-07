@@ -1177,10 +1177,14 @@ function parseDictado(texto){
     if(!nw.length)return;
     var idxs=[],start=0,okAll=true;
     for(var j=0;j<nw.length;j++){
-      var found=-1;
-      for(var i=start;i<palabras.length;i++){if(!usado[i]&&(palabras[i].indexOf(nw[j])===0||stemVoz(palabras[i])===nw[j])){found=i;break;}}
+      var found=-1,foundLen=1;
+      for(var i=start;i<palabras.length;i++){
+        if(usado[i])continue;
+        if(palabras[i].indexOf(nw[j])===0||stemVoz(palabras[i])===nw[j]){found=i;foundLen=1;break;}
+        if(i+1<palabras.length&&!usado[i+1]){var pair=palabras[i]+palabras[i+1];if(pair.indexOf(nw[j])===0||stemVoz(pair)===nw[j]){found=i;foundLen=2;break;}}
+      }
       if(found===-1){okAll=false;break;}
-      idxs.push(found);start=found+1;
+      idxs.push(found);if(foundLen===2)idxs.push(found+1);start=found+foundLen;
     }
     if(!okAll)return;
     var qty=1;

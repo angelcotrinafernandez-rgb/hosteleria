@@ -6,6 +6,7 @@
 <title>🍽️ Hostelería Pro</title>
 <!-- VOZ 2026-11-07: Pedir a mano / Dictar mi pedido (voz a texto en servidor, confirmación antes de enviar) -->
 <!-- VOZ 2026-11-07b: Dictar pedido también en camarero y barra (mismo panel, propuesta y confirmación; el pedido manual no cambia) -->
+<!-- CUENTA 2026-11-07: vista camarero funde las tarjetas de barra y cocina en una sola cuando todo esta entregado; el cobro no cambia -->
 <!-- VERSION: PROD-2026-10-11-LOCKED-CLIENT -->
 <style>
 :root{--bg:#0a0a0f;--bg2:#13131a;--card:#1a1a24;--border:#2a2a38;--t1:#f4f4f5;--t2:#a1a1aa;--t3:#71717a;--gold:#f59e0b;--green:#10b981;--blue:#3b82f6;--red:#ef4444;--purple:#8b5cf6;--orange:#f97316;}
@@ -869,10 +870,20 @@ function verMesaCamarero(nombre){
     html+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="abrirCamOrderConMesa(\''+esc(jsArg(nombre))+'\')">➕ Añadir pedido</button><button class="btn btn-grey btn-sm" onclick="currentMesaCamarero=null;document.getElementById(\'mesaDetalleCamarero\').innerHTML=\'\';">✕ Cerrar</button></div>';
   }else{
     var acc={total:0};
-    pedidosMesa.forEach(function(p){
-      accImporte(acc,p);
-      html+='<div class="order '+stClass(p.estado)+' '+(p.destino==='cocina'?'cocina':'barra')+'"><div class="ohead"><span class="mesa-tag">'+(p.destino==='cocina'?'👨‍🍳':'🍸')+'</span><span class="otime">'+ftime(p.createdAtLocal)+'</span></div><div class="oitems">'+escL(p.items||'')+'</div><div class="ofoot"><span class="st '+stClass(p.estado)+'">'+stLabel(p.estado)+'</span>'+(p.estado==='LISTO'?'<button class="btn btn-gold btn-sm" onclick="cambiarEstado(\''+p.id+'\',\'ENTREGADO\')">📦 Entregado</button>':'')+'</div></div>';
-    });
+    pedidosMesa.forEach(function(p){accImporte(acc,p);});
+    var todosEntregados=pedidosMesa.length>1&&pedidosMesa.every(function(p){return p.estado==='ENTREGADO';});
+    if(todosEntregados){
+      var lineas='';
+      pedidosMesa.forEach(function(p){
+        var icon=p.destino==='cocina'?'👨‍🍳':'🍸';
+        (p.items||'').split('\n').forEach(function(l){l=l.trim();if(!l||l.match(/^Total:/))return;lineas+=icon+' '+l+'\n';});
+      });
+      html+='<div class="order entregado"><div class="ohead"><span class="mesa-tag">🧾 Cuenta de la mesa</span></div><div class="oitems">'+escL(lineas)+'</div><div class="ofoot"><span class="st entregado">📦 Todo entregado</span></div></div>';
+    }else{
+      pedidosMesa.forEach(function(p){
+        html+='<div class="order '+stClass(p.estado)+' '+(p.destino==='cocina'?'cocina':'barra')+'"><div class="ohead"><span class="mesa-tag">'+(p.destino==='cocina'?'👨‍🍳':'🍸')+'</span><span class="otime">'+ftime(p.createdAtLocal)+'</span></div><div class="oitems">'+escL(p.items||'')+'</div><div class="ofoot"><span class="st '+stClass(p.estado)+'">'+stLabel(p.estado)+'</span>'+(p.estado==='LISTO'?'<button class="btn btn-gold btn-sm" onclick="cambiarEstado(\''+p.id+'\',\'ENTREGADO\')">📦 Entregado</button>':'')+'</div></div>';
+      });
+    }
     html+='<div class="stat" style="margin-top:12px;background:linear-gradient(135deg,rgba(245,158,11,.1),#0a0f1e);border-color:rgba(245,158,11,.3);"><span class="otime">Total cuenta</span><b style="display:block;font-size:24px;color:var(--gold);">'+fp(acc.total)+'</b></div>';
     var todosListos=pedidosMesa.every(function(p){return p.estado==='ENTREGADO';});
     html+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="abrirCamOrderConMesa(\''+esc(jsArg(nombre))+'\')">➕ Añadir</button>'+(todosListos?'<button class="btn btn-green btn-sm" onclick="cobrarMesa(\''+encodeURIComponent(nombre)+'\')">💰 Cobrar</button>':'<button class="btn btn-grey btn-sm" disabled>⏳ Esperando servir</button>')+'<button class="btn btn-grey btn-sm" onclick="currentMesaCamarero=null;document.getElementById(\'mesaDetalleCamarero\').innerHTML=\'\';">✕ Cerrar</button></div>';

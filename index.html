@@ -257,6 +257,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .ba-zonas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.ba-zonas button{padding:16px 8px}.ba-zonas button[aria-pressed=true]{background:var(--gold);color:#161007;border-color:var(--gold)}.ba-plano-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}.ba-plano-head p{color:var(--t2);font-size:13px}.ba-filtros{display:flex;gap:7px}.ba-filtros button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.ba-plano{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px;padding:24px 14px;background:linear-gradient(0deg,transparent 31px,#ffffff04 32px),linear-gradient(90deg,transparent 31px,#ffffff04 32px);background-size:32px 32px;min-height:250px}.ba-mesa{position:relative;border:1px solid #10b98155;background:#10b9810a;border-radius:18px;padding:14px 12px;color:var(--t1);font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}.ba-mesa:hover{transform:translateY(-2px);border-color:var(--gold)}.ba-mesa.ocupada{border-color:#ef444477;background:#ef44440a}.ba-mesa.pide-cuenta{border-color:var(--gold);background:#f59e0b10}.ba-mesa-estado{font-size:10px;text-transform:uppercase;font-weight:800;letter-spacing:1px;color:var(--green)}.ocupada .ba-mesa-estado{color:#f87171}.pide-cuenta .ba-mesa-estado{color:var(--gold)}.ba-tablero{position:relative;display:flex;align-items:center;justify-content:center;width:94px;height:70px;border-radius:17px;background:#17392e;border:2px solid #10b98180;margin:9px 0;font-size:20px;box-shadow:-15px 0 0 -7px #10b98150,15px 0 0 -7px #10b98150,0 -15px 0 -7px #10b98150,0 15px 0 -7px #10b98150}.ocupada .ba-tablero{background:#402123;border-color:#f8717180;box-shadow:-15px 0 0 -7px #ef444450,15px 0 0 -7px #ef444450,0 -15px 0 -7px #ef444450,0 15px 0 -7px #ef444450}.pide-cuenta .ba-tablero{border-color:var(--gold)}.ba-mesa-total{font-size:18px;font-weight:750}.ba-mesa small{font-size:11px;color:var(--t2)}.ba-pantalla{position:fixed;inset:0;z-index:1800;background:var(--bg);display:flex;flex-direction:column}.ba-pantalla>header{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:18px 28px;border-bottom:1px solid var(--border);background:var(--bg2)}.ba-pantalla h1{font-size:24px}.ba-pantalla p{font-size:13px;color:var(--t2)}.ba-pantalla-main{overflow:auto;flex:1;width:100%;max-width:1000px;margin:0 auto;padding:28px;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-content:start}.ba-cuenta-box{position:sticky;top:0;align-self:start}.ba-comanda{border:1px solid var(--border);background:var(--card);padding:18px;border-radius:14px;margin-bottom:14px}.ba-comanda header{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px}.ba-comanda-items{font-size:16px;line-height:1.8;margin-bottom:12px}.ba-comanda small{color:var(--t2)}.ba-total{font-size:44px;font-weight:800;color:var(--gold);margin:12px 0}.ba-cuenta-box .btn{margin-top:12px}.ba-cuenta-box p{margin:8px 0}.ba-sin-pedido{text-align:center;padding:50px 15px;color:var(--t2)}.ba-sin-pedido>span{font-size:60px}.ba-detalle-abierto{overflow:hidden}#manualOrderModal .modal-content{max-width:900px;width:100%}#manualOrderModal{z-index:2200}.ba-zona-asignar{font-size:12px;color:var(--t2);margin-top:22px}.ba-zona-asignar select{margin-top:6px}.ba-copy-note{color:var(--t2);font-size:12px;padding:12px 0 0}@media(max-width:600px){.ba-plano{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px 3px;gap:14px}.ba-plano-head{margin-bottom:14px}.ba-pantalla>header{padding:12px;align-items:flex-start}.ba-pantalla h1{font-size:20px}.ba-pantalla-main{display:flex;flex-direction:column;padding:14px;gap:4px}.ba-cuenta-box{position:static;order:-1;width:100%}.ba-total{font-size:34px}.ba-zona-asignar{margin-top:12px}.ba-zonas{gap:6px}.ba-zonas button{font-size:13px;padding:12px 4px}.ba-filtros .btn{padding:7px 9px}}
 
 </style>
+<style>/* Plano dibujado propio. Conserva el tema oscuro y el flujo de Hostelería. */
+.v6-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:16px 0;flex-wrap:wrap}.v6-toolbar p{margin:0;color:#a9b8c5;font-size:12px}.v6-edit-controls{display:flex;gap:8px;flex-wrap:wrap}.v6-mode{font-size:11px;letter-spacing:.12em;color:#e5bd73;font-weight:700}.v6-banner{padding:10px 16px;background:#243b36;color:#b9e6d1;font-size:12px;text-align:center;letter-spacing:.02em;border-bottom:1px solid #365e4c}.v6-status{min-height:22px;font-size:12px;color:#b8cbd0;margin:10px 0}.v6-legend{display:flex;flex-wrap:wrap;gap:16px;color:#abbcc4;font-size:12px;margin-bottom:12px}.v6-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.v6-floor.ba-plano{display:block;position:relative;isolation:isolate;overflow:hidden;width:100%;height:510px;min-height:0;border-radius:18px;border:7px solid #5a6268;background-color:#263138;background-image:linear-gradient(90deg,#ffffff04 1px,transparent 1px),linear-gradient(#ffffff04 1px,transparent 1px);background-size:36px 36px;box-shadow:inset 0 0 70px #0004;margin:0}.v6-floor.v6-terrace{background-color:#34433b;background-image:repeating-linear-gradient(0deg,transparent 0 29px,#1d302c44 30px 32px);border-color:#768172}.v6-room-label{position:absolute;left:18px;top:14px;font-size:10px;letter-spacing:.2em;color:#a6b7ba;font-weight:600;pointer-events:none}.v6-door{position:absolute;bottom:0;left:40%;width:20%;height:22px;border-top:2px solid #9baaaa;text-align:center;font-size:8px;letter-spacing:.14em;color:#c2cfce;padding:5px;background:#253137}.v6-bar{position:absolute;transform:translate(-50%,-50%);width:33%;height:37%;border:25px solid #987650;border-top:0;border-radius:0 0 24px 24px;box-shadow:0 10px 0 #715839,0 17px 22px #0004;background:#1d282d;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;color:#e9d3b5}.v6-bar span{font-size:11px;letter-spacing:.18em;position:absolute;bottom:-18px}.v6-bar i{position:absolute;background:#c69b65;border:4px solid #534b40;box-shadow:0 3px 0 #1b242a;width:27px;height:27px;border-radius:50%;bottom:-66px}.v6-bar i:first-of-type{left:-10px}.v6-bar i:nth-of-type(2){left:calc(50% - 13px)}.v6-bar i:nth-of-type(3){right:-10px}.v6-bar-large{width:43%;height:41%;border-width:30px;border-top-width:0}.v6-bar-large i{display:none}.v6-plant{position:absolute;width:46px;height:60px;transform:translate(-50%,-50%);filter:drop-shadow(0 5px 5px #0004)}.v6-plant svg{width:100%;height:100%}.v6-table{position:absolute;transform:translate(-50%,-50%);width:116px;height:102px;border:2px solid #72a793;border-radius:15px;background:linear-gradient(135deg,#426a5b,#365748);color:#f1fff9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;box-shadow:0 6px 0 #192a23,0 12px 14px #0004;cursor:pointer;font-family:inherit;z-index:2;touch-action:manipulation}.v6-table:before,.v6-table:after{content:'';position:absolute;left:22%;width:56%;height:9px;border:2px solid #677872;border-radius:5px;background:#3a4744;z-index:-1}.v6-table:before{top:-15px}.v6-table:after{bottom:-15px}.v6-table b{font-size:15px;line-height:1.15}.v6-table span{font-size:17px;font-weight:750}.v6-table small{font-size:10px;letter-spacing:.02em;color:#d3eadf}.v6-table:hover{filter:brightness(1.15)}.v6-table:focus-visible,.v6-movable:focus-visible{outline:3px solid #fff;outline-offset:6px}.v6-busy{background:linear-gradient(135deg,#9e4b51,#7f3b47);border-color:#df8d8d;color:#fff5f5;box-shadow:0 6px 0 #522b35,0 12px 14px #0004}.v6-busy small{color:#ffd9d9}.v6-bill{background:linear-gradient(135deg,#a47b37,#806027);border-color:#e2c173;color:#fff7e7;box-shadow:0 6px 0 #594525,0 12px 14px #0004}.v6-bill small{color:#fff0b2}.v6-stool{border-radius:50%;width:92px;height:92px}.v6-stool:before,.v6-stool:after{display:none}.v6-round{border-radius:50%;width:112px;height:112px}.v6-editing{outline:2px dashed #d7b878;outline-offset:4px}.v6-movable{touch-action:none!important;cursor:grab!important}.v6-dragging{z-index:20!important;cursor:grabbing!important;filter:brightness(1.18)}.v6-empty{position:absolute;left:20%;top:45%;width:60%;text-align:center;padding:14px;background:#182329ed;border:1px solid #7d8a86;border-radius:10px;z-index:5;color:#e2e9e7}.ba-copy-note{line-height:1.5!important}.v6-floor~p{max-width:850px}
+@media(min-width:1100px){.v6-floor.ba-plano{height:540px}.v6-table{width:132px;height:108px}.v6-round{width:124px;height:124px}.v6-stool{width:96px;height:96px}}
+@media(max-width:600px){.v6-floor.ba-plano{height:500px;border-width:4px;border-radius:13px;background-size:24px 24px}.v6-table{width:78px;height:88px;border-radius:12px;gap:4px}.v6-table b{font-size:12px}.v6-table span{font-size:14px}.v6-table small{font-size:9px}.v6-stool{width:72px;height:80px;border-radius:50%}.v6-round{width:90px;height:90px;border-radius:50%}.v6-table:before{top:-12px;height:6px}.v6-table:after{bottom:-12px;height:6px}.v6-bar{width:32%;height:29%;border-width:15px;border-top:0;border-radius:0 0 17px 17px}.v6-bar span{font-size:8px;letter-spacing:.09em;bottom:-12px}.v6-bar i{width:18px;height:18px;border-width:3px;bottom:-49px}.v6-bar-large{width:43%;height:35%;border-width:20px;border-top:0}.v6-plant{width:34px;height:45px}.v6-room-label{font-size:8px;left:10px;top:12px}.v6-toolbar{gap:8px}.v6-toolbar p{font-size:11px}.v6-legend{font-size:10px;gap:12px}.v6-banner{font-size:10px;padding:8px}.v6-door{font-size:7px;left:35%;width:30%}.v6-status{font-size:11px}.v6-edit-controls .btn{font-size:11px;padding:8px 10px}}
+.v6-game{position:absolute;transform:translate(-50%,-50%);border:7px solid #987650;border-radius:6px;width:27%;height:14%;background:#326651;box-shadow:0 6px 0 #554636,0 10px 12px #0004;display:flex;justify-content:center;align-items:center;color:#c8d9c7}.v6-game span{font-size:8px;letter-spacing:.13em;position:absolute;bottom:5px}.v6-billiard:before,.v6-billiard:after{content:'';position:absolute;background:#152922;width:9px;height:9px;border-radius:50%;top:2px}.v6-billiard:before{left:2px}.v6-billiard:after{right:2px}.v6-cue{position:absolute;width:70%;height:2px;background:#d7bf8d;transform:rotate(-16deg);top:32%}.v6-ball{width:7px;height:7px;border-radius:50%;background:#f0e6cc;position:absolute;left:32%;top:35%}.v6-foosball{width:24%;height:11%;background:repeating-linear-gradient(90deg,#44735b 0 19%,#becbb470 20% 21%,#44735b 22% 33%);border-width:6px}.v6-foosball i{position:absolute;height:140%;width:2px;background:#c4c7b9;top:-20%}.v6-foosball i:nth-of-type(1){left:23%}.v6-foosball i:nth-of-type(2){left:50%}.v6-foosball i:nth-of-type(3){left:77%}.v6-table b:before,.v6-table b:after{content:'';position:absolute;width:8px;height:35%;background:#3a4744;border:2px solid #677872;border-radius:5px;top:32%}.v6-table b:before{left:-14px}.v6-table b:after{right:-14px}.v6-stool b:before,.v6-stool b:after{display:none}
+@media(max-width:600px){.v6-game{border-width:5px;height:11%;width:29%}.v6-foosball{height:9%;width:26%}.v6-game span{font-size:6px;bottom:4px;letter-spacing:.03em}.v6-table b:before,.v6-table b:after{width:5px}.v6-table b:before{left:-10px}.v6-table b:after{right:-10px}}
+@media(max-width:360px){.v6-table{width:62px;height:80px}.v6-table b{font-size:11px}.v6-table span{font-size:12px}.v6-table small{font-size:8px}.v6-stool{width:62px;height:72px}.v6-round{width:78px;height:86px}}
+@media(max-width:600px){.v6-table:not(.v6-round):not(.v6-stool){width:74px}.v6-door{white-space:nowrap;font-size:6px;letter-spacing:.06em}}
+@media(max-width:360px){.v6-table:not(.v6-round):not(.v6-stool){width:58px}.v6-table b:before{left:-8px}.v6-table b:after{right:-8px}.v6-table b:before,.v6-table b:after{width:4px}}
+</style>
 </head>
 <body>
 <div id="reconnectBanner" class="reconnect hidden">⚠️ Sin conexión — reintentando...</div>
@@ -356,6 +366,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="tab" data-tab="ad-qrs" onclick="switchAdTab('ad-qrs')">📱 QRs</div>
       <div class="tab" data-tab="ad-camareros" onclick="switchAdTab('ad-camareros')">👤 Camareros</div>
       <div class="tab" data-tab="ad-mesas" onclick="switchAdTab('ad-mesas')">🪑 Mesas</div>
+      <div class="tab" data-tab="ad-plano" onclick="switchAdTab('ad-plano')">🗺️ Plano</div>
       <div class="tab" data-tab="ad-productos" onclick="switchAdTab('ad-productos')">🍽️ Productos</div>
       <div class="tab" data-tab="ad-importar" onclick="switchAdTab('ad-importar')">📥 Importar</div>
       <div class="tab" data-tab="ad-notifs" onclick="switchAdTab('ad-notifs')">🔔 Notifs</div>
@@ -436,6 +447,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
     <div id="ad-mesas" class="ad-tab-content hidden">
       <div class="card"><h3>🪑 Mesas y camarero responsable</h3><div style="display:flex;gap:10px;margin-bottom:12px;"><input class="input" id="nuevaMesa" placeholder="Nueva mesa"/><button class="btn btn-gold" onclick="agregarMesa()">➕</button></div><div id="mesasList"></div></div>
+    </div>
+    <div id="ad-plano" class="ad-tab-content hidden">
+      <div class="ba-zonas" aria-label="Zona del establecimiento">
+       <button class="btn btn-grey" data-ba-zona="barra" onclick="baZona('barra')">Barra</button>
+       <button class="btn btn-grey" data-ba-zona="local" onclick="baZona('local')">Mesas local</button>
+       <button class="btn btn-grey" data-ba-zona="terraza" onclick="baZona('terraza')">Terraza</button>
+      </div>
+      <div class="card">
+       <div class="ba-plano-head"><div><h3 id="adPlanoTitulo">Mesas del local</h3><p id="adPlanoResumen"></p></div>
+       <button class="btn btn-grey btn-sm" type="button" id="v6Edit" onclick="v6Editing()">✎ Editar plano</button></div>
+       <div id="v6EditControls" class="v6-edit-controls hidden" style="margin-bottom:14px;"><button type="button" class="btn btn-green btn-sm" id="v6Save" onclick="v6Save()">Guardar</button><button type="button" class="btn btn-grey btn-sm" id="v6Cancel" onclick="v6Cancel()">Cancelar</button><button type="button" class="btn btn-grey btn-sm" id="v6Reset" onclick="v6Reset()">Restablecer</button></div>
+       <div class="v6-legend"><span><i style="background:#79aa91"></i>Libre</span><span><i style="background:#ce797c"></i>Ocupada</span><span><i style="background:#dfb25e"></i>Pide cuenta</span></div>
+       <div class="ba-plano" id="adPlanoMesas"></div>
+       <p id="v6Status" class="v6-status" aria-live="polite">Edita el plano para colocar mesas, barra y decoracion.</p>
+       <p class="ba-copy-note">El plano se guarda en la base de datos del programa y se comparte con todos los puestos; solo se modifica desde Admin. La distribucion inicial es de ejemplo y se adapta al local arrastrando.</p>
+      </div>
     </div>
     <div id="ad-productos" class="ad-tab-content hidden">
       <div class="card"><h3>🍽️ Productos</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="prodNom" placeholder="Nombre"/><input class="input" id="prodPre" type="number" step="0.01" placeholder="Precio (€)"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><select class="input" id="prodCat"><option value="">— Categoría —</option><option value="bebidas">🍺 Bebidas</option><option value="tapas">🥘 Tapas</option><option value="raciones">🍖 Raciones</option><option value="menus">📜 Menús</option></select><select class="input" id="prodDest"><option value="">— Destino —</option><option value="barra">🍸 Barra</option><option value="cocina">👨‍🍳 Cocina</option></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--t2);"><input type="checkbox" id="prodTamanos" style="width:auto;"/> ¿Tiene tamaños?</label><input class="input" id="prodPreMedio" type="number" step="0.01" placeholder="Precio media (€)"/></div><input class="input" id="prodDesc" placeholder="Descripción (opcional)" style="margin-bottom:10px;"/><div style="margin-bottom:10px;"><label style="font-size:13px;color:var(--t2);display:block;margin-bottom:6px;">🥜 Alérgenos (se muestran en la carta QR)</label><div id="prodAlergenos" class="alg-grid"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="prodStock" type="number" step="1" placeholder="Stock (vacío = sin control)"/><input class="input" id="prodStockMin" type="number" step="1" placeholder="Aviso «queda poco» (ej: 5)"/></div><label style="font-size:13px;color:var(--t2);display:block;margin-bottom:6px;">📷 Foto (opcional)</label><input class="input" id="prodFoto" type="file" accept="image/*"/><div id="prodFotoPrev" style="margin-top:10px;"></div><button class="btn btn-gold" onclick="agregarProducto()" style="margin-top:10px;">➕ Añadir producto</button><div id="prodList" style="margin-top:20px;"></div></div>
@@ -549,8 +576,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="card">
        <div class="ba-plano-head"><div><h3 id="baPlanoTitulo">Mesas del local</h3><p id="baPlanoResumen"></p></div>
        <div class="ba-filtros"><button class="btn btn-grey btn-sm" data-ba-filtro="todas" onclick="baFiltro('todas')">Todas</button><button class="btn btn-grey btn-sm" data-ba-filtro="ocupadas" onclick="baFiltro('ocupadas')">Ocupadas</button><button class="btn btn-grey btn-sm" data-ba-filtro="libres" onclick="baFiltro('libres')">Libres</button></div></div>
+       <div class="v6-legend"><span><i style="background:#79aa91"></i>Libre</span><span><i style="background:#ce797c"></i>Ocupada</span><span><i style="background:#dfb25e"></i>Pide cuenta</span></div>
        <div class="ba-plano" id="baPlanoMesas"></div>
-       <p class="ba-copy-note">Toca una mesa para ver sus pedidos y su cuenta. Verde: libre · Rojo: ocupada · Ámbar: pide la cuenta. Distribución esquemática, no es el plano real del local.</p>
+       <p class="ba-copy-note">Toca una mesa para ver sus pedidos y su cuenta. Verde: libre · Rojo: ocupada · Ámbar: pide la cuenta. La distribución del plano es compartida entre puestos y se modifica desde Admin.</p>
       </div>
     </div>
     <div id="ba-inicio" class="ba-tab-content hidden">
@@ -831,7 +859,7 @@ function renderAdmin(){
   var tp=document.getElementById('adTurnoPill'),tt=document.getElementById('adTurnoText');
   var t=getTurnoActivo();
   if(tp&&tt){if(t){tp.classList.add('activo');tt.innerHTML='<b>🟢 Turno activo</b> · '+esc(t.encargadoBarra||'-')+' · '+ftime(t.timestampInicio);}else{tp.classList.remove('activo');tt.innerHTML='⚪ Sin turno abierto';}}
-  renderContab();renderCamareros();renderMesas();renderProdsAdmin();renderTurnoActual();renderAdminNotifs();renderCaja();renderReservas();
+  renderContab();renderCamareros();renderMesas();renderProdsAdmin();renderTurnoActual();renderAdminNotifs();renderCaja();renderReservas();renderPlanoBarra();
 }
 function renderCocina(){
   var pend=orders.filter(function(o){return o.destino==='cocina'&&o.estado==='RECIBIDO';});
@@ -1371,7 +1399,7 @@ function cobrarMesa(enc){
     var acc={total:0};pm.forEach(function(o){accImporte(acc,o);});var totalMesa=acc.total;
     pagoMesaActual=mesa;pagoPedidos=pm;pagoTotal=totalMesa;pagoMetodo='';
     var ih='';pm.forEach(function(o){var icon=o.destino==='cocina'?'👨‍🍳':'🍸';(o.items||'').split('\n').forEach(function(l){l=l.trim();if(!l||l.match(/^Total:/)||l.match(/^📝/))return;ih+='<div class="pago-item">'+icon+' '+esc(l)+'</div>';});});
-    document.getElementById('pagoTitulo').textContent='💰 Cobrar Mesa '+mesa;
+    document.getElementById('pagoTitulo').textContent='💰 Cobrar '+baEtiquetaMesa(mesa);
     document.getElementById('pagoItems').innerHTML=ih||'<div class="empty">Sin productos</div>';
     document.getElementById('pagoTotal').textContent=fp(totalMesa);
     document.querySelectorAll('.pago-btn').forEach(function(b){b.classList.remove('selected');});
@@ -1431,6 +1459,7 @@ function descargarBackup(){if(!requireFB())return;showToast('⏳ Generando...','
 function subscribeAll(){
   if(!firebaseReady||!db)return;
   db.ref('mesas').on('value',function(s){var d=s.val()||{};mesas=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});mesas.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});renderAll();});
+  if(role==='barra'||role==='admin'){db.ref('planoPosiciones').on('value',function(s){planoPos=v6Validate(s.val());renderPlanoBarra();});}
   db.ref('camareros').on('value',function(s){var d=s.val()||{};camareros=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});camareros.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='camarero'&&!myCamName)showCamModal();});
   if(role==='cliente'||role==='admin'||role==='barra'||role==='camarero'||role==='superadmin'){
     db.ref('productos').on('value',function(s){var d=s.val()||{};productos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});productos.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='cliente')renderProdCliente();if(role==='admin'||role==='superadmin')renderProdsAdmin();if(role==='barra'){var mo=document.getElementById('manualOrderModal');if(mo&&!mo.classList.contains('hidden'))renderManualProds();}if(role==='camarero'){var co=document.getElementById('camareroOrderModal');if(co&&!co.classList.contains('hidden'))renderCamOrderProds();}});
@@ -1677,29 +1706,69 @@ try{var rf=document.getElementById('resFecha');if(rf)rf.value=new Date().toISOSt
 setInterval(function(){try{if(role==='admin'||role==='superadmin'||role==='barra')renderReservas();}catch(e){}},60000);
 /* Plano y cuenta de mesas. Copia v5, sin alterar la lógica de cobro existente. */
 var baMesaActual=null,baMesaFiltro='todas',baZonaActual='local';
+var planoPos={},v6Edit=false,v6Draft=null,v6Dirty=false,v6Selected=null;
 function baEtiquetaMesa(n){return /^mesa\b/i.test(String(n))?String(n):'Mesa '+n;}
 function baPedidosMesa(n){return orders.filter(function(o){return o.mesa===n&&o.estado!=='PAGADO'&&o.estado!=='CANCELADO';});}
 function baDatosMesa(n){var ps=baPedidosMesa(n),a={total:0};ps.forEach(function(o){accImporte(a,o);});return {pedidos:ps,total:a.total,pendientes:ps.filter(function(o){return o.estado!=='ENTREGADO';}).length,cuenta:alerts.some(function(x){return x.mesa===n&&x.tipo==='PEDIR_CUENTA'&&!x.atendida;})};}
 function baNombresMesas(){var ns=mesas.filter(function(m){return m.activo!==false;}).map(function(m){return m.nombre;});orders.forEach(function(o){if(o.estado!=='PAGADO'&&o.estado!=='CANCELADO'&&o.mesa&&ns.indexOf(o.mesa)<0)ns.push(o.mesa);});return ns;}
-function baFiltro(f){baMesaFiltro=f;renderPlanoBarra();}
+function baFiltro(f){if(v6Edit)return;baMesaFiltro=f;renderPlanoBarra();}
 function renderPlanoBarra(){
- var box=document.getElementById('baPlanoMesas');if(!box)return;document.querySelectorAll('[data-ba-zona]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.baZona===baZonaActual?'true':'false');});document.getElementById('baPlanoTitulo').textContent={barra:'Barra',local:'Mesas del local',terraza:'Terraza'}[baZonaActual];
- var ns=baNombresMesas().filter(function(n){return baZonaMesa(n)===baZonaActual;}),ocup=0,total=0,cuentas=0;
- ns.forEach(function(n){var d=baDatosMesa(n);if(d.pedidos.length)ocup++;total+=d.total;if(d.cuenta)cuentas++;});
- document.getElementById('baPlanoResumen').textContent=ocup+' ocupadas · '+(ns.length-ocup)+' libres · '+cuentas+' piden cuenta';
- document.querySelectorAll('[data-ba-filtro]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.baFiltro===baMesaFiltro?'true':'false');});
- box.replaceChildren();var visibles=0;
- ns.forEach(function(n){var d=baDatosMesa(n),busy=d.pedidos.length>0;if(baMesaFiltro==='libres'&&busy||baMesaFiltro==='ocupadas'&&!busy)return;visibles++;
-  var b=document.createElement('button');b.type='button';b.className='ba-mesa '+(busy?'ocupada':'libre')+(d.cuenta?' pide-cuenta':'');b.onclick=function(){abrirMesaBarra(n);};
-  b.setAttribute('aria-label',baEtiquetaMesa(n)+', '+(busy?'ocupada, '+fp(d.total):'libre'));
-  var top=document.createElement('span');top.className='ba-mesa-estado';top.textContent=d.cuenta?'Pide cuenta':(busy?'Ocupada':'Libre');
-  var tablero=document.createElement('span');tablero.className='ba-tablero';var name=document.createElement('b');name.textContent=n;tablero.appendChild(name);
-  var sub=document.createElement('span');sub.className='ba-mesa-total';sub.textContent=busy?fp(d.total):'Abrir mesa';
-  var foot=document.createElement('small');foot.textContent=busy?(d.pendientes?d.pendientes+' por entregar':'Lista para cobrar'):'Añadir pedido';
-  b.append(top,tablero,sub,foot);box.appendChild(b);
- });
- if(!visibles){var empty=document.createElement('p');empty.className='empty';empty.textContent='No hay mesas en este filtro.';box.appendChild(empty);}
+ var titulos={barra:'Barra',local:'Mesas del local',terraza:'Terraza'};
+ document.querySelectorAll('[data-ba-zona]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.baZona===baZonaActual?'true':'false');b.disabled=v6Edit;});
+ document.querySelectorAll('[data-ba-filtro]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.baFiltro===baMesaFiltro?'true':'false');b.disabled=v6Edit;});
+ var ns=baNombresMesas().filter(function(n){return baZonaMesa(n)===baZonaActual;}),ocup=0,cuentas=0;
+ ns.forEach(function(n){var d=baDatosMesa(n);if(d.pedidos.length)ocup++;if(d.cuenta)cuentas++;});
+ var resumen=ocup+' ocupadas · '+(ns.length-ocup)+' libres · '+cuentas+' piden cuenta';
+ var bt=document.getElementById('baPlanoTitulo');if(bt)bt.textContent=titulos[baZonaActual];
+ var br=document.getElementById('baPlanoResumen');if(br)br.textContent=resumen;
+ var at=document.getElementById('adPlanoTitulo');if(at)at.textContent=titulos[baZonaActual];
+ var ar=document.getElementById('adPlanoResumen');if(ar)ar.textContent=resumen;
+ var ve=document.getElementById('v6Edit');if(ve)ve.classList.toggle('hidden',v6Edit||role!=='admin');
+ var vc=document.getElementById('v6EditControls');if(vc)vc.classList.toggle('hidden',!v6Edit);
+ v6RenderBox(document.getElementById('baPlanoMesas'),ns,true);
+ v6RenderBox(document.getElementById('adPlanoMesas'),ns,false);
  if(baMesaActual!==null)renderDetalleMesaBarra();
+}
+/* Plano dibujado compartido. Posiciones en Firebase (planoPosiciones), edicion solo desde Admin. */
+var v6Defaults={
+ local:{'Mesa 1':{x:53,y:24},'Mesa 2':{x:85,y:24},'Mesa 3':{x:53,y:69},'Mesa 4':{x:85,y:69},bar:{x:23,y:26},billiard:{x:23,y:60},foosball:{x:23,y:77},plant1:{x:10,y:91},plant2:{x:41,y:91}},
+ barra:{'Barra 1':{x:20,y:27},'Barra 2':{x:80,y:27},'Barra 3':{x:34,y:78},'Barra 4':{x:66,y:78},bar:{x:50,y:40},plant1:{x:9,y:84},plant2:{x:91,y:84}},
+ terraza:{'T1':{x:29,y:25},'T2':{x:72,y:25},'T3':{x:29,y:68},'T4':{x:72,y:68},plant1:{x:7,y:48},plant2:{x:94,y:48}}};
+function v6Clone(v){return JSON.parse(JSON.stringify(v));}
+function v6Validate(raw){var out={};if(!raw||typeof raw!=='object')return out;['local','barra','terraza'].forEach(function(z){var zn=raw[z];if(!zn||typeof zn!=='object')return;var limpia={};Object.keys(zn).forEach(function(k){var p=zn[k];if(p&&Number.isFinite(p.x)&&Number.isFinite(p.y))limpia[k]={x:Math.max(0,Math.min(100,p.x)),y:Math.max(0,Math.min(100,p.y))};});out[z]=limpia;});return out;}
+function v6Auto(i){return{x:18+(i%4)*21,y:28+Math.floor(i/4)*26};}
+function v6Pos(key,idx){var z=baZonaActual;return (v6Edit&&v6Draft&&v6Draft[key])||(planoPos[z]&&planoPos[z][key])||v6Defaults[z][key]||(idx!=null?v6Auto(idx):{x:50,y:50});}
+function v6Say(t){var el=document.getElementById('v6Status');if(el)el.textContent=t;}
+function v6Editing(){if(role!=='admin')return;v6Edit=true;v6Draft={};var ns=baNombresMesas().filter(function(n){return baZonaMesa(n)===baZonaActual;});ns.forEach(function(n,i){v6Draft[n]=v6Clone(v6Pos(n,i));});['bar','plant1','plant2','billiard','foosball'].forEach(function(k){v6Draft[k]=v6Clone(v6Pos(k));});v6Dirty=false;v6Selected=null;renderPlanoBarra();v6Say('Arrastra mesas, barra o plantas. También puedes usar Tab y las flechas.');}
+function v6Cancel(){if(!v6Edit)return;v6Edit=false;v6Draft=null;v6Dirty=false;v6Selected=null;renderPlanoBarra();v6Say('Edición cancelada. No se han guardado los cambios.');}
+function v6Save(){if(role!=='admin'||!v6Edit)return;if(!requireFB()){v6Say('Sin conexión. Conservamos la edición; inténtalo cuando vuelva.');return;}var payload=v6Clone(v6Draft);v6Say('Guardando…');db.ref('planoPosiciones/'+baZonaActual).set(payload).then(function(){planoPos[baZonaActual]=v6Clone(payload);v6Edit=false;v6Draft=null;v6Dirty=false;v6Selected=null;renderPlanoBarra();v6Say('Distribución guardada y compartida con todos los puestos.');showToast('✅ Plano guardado','success');}).catch(function(){v6Say('No se pudo guardar. Conservamos la edición; inténtalo de nuevo.');});}
+function v6Reset(){if(!v6Edit)return;v6Draft=v6Clone(v6Defaults[baZonaActual]);v6Dirty=true;renderPlanoBarra();v6Say('Distribución inicial recuperada en la edición. Pulsa Guardar para conservarla o Cancelar para deshacer.');}
+function v6SetPos(el,key,x,y){var maxX=100-(el.offsetWidth/2+12)/el.parentElement.clientWidth*100,maxY=100-(el.offsetHeight/2+16)/el.parentElement.clientHeight*100;var minX=100-maxX,minY=100-maxY;v6Draft[key]={x:Math.max(minX,Math.min(maxX,x)),y:Math.max(minY,Math.min(maxY,y))};el.style.left=v6Draft[key].x+'%';el.style.top=v6Draft[key].y+'%';v6Dirty=true;}
+function v6Node(el,key,idx){var p=v6Pos(key,idx);el.dataset.planKey=key;el.style.left=p.x+'%';el.style.top=p.y+'%';if(!v6Edit)return;el.classList.add('v6-movable');el.tabIndex=0;el.setAttribute('aria-label','Mover '+(key==='bar'?'barra':key==='billiard'?'billar':key==='foosball'?'futbolín':key.indexOf('plant')===0?'planta':key));el.addEventListener('click',function(e){if(v6Edit){e.preventDefault();e.stopPropagation();}});el.addEventListener('keydown',function(e){var dirs={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]},d=dirs[e.key];if(!d)return;e.preventDefault();var q=v6Draft[key];if(!q)return;v6SetPos(el,key,q.x+d[0]*(e.shiftKey?5:1),q.y+d[1]*(e.shiftKey?5:1));});el.addEventListener('pointerdown',function(e){if(e.button!==0)return;e.preventDefault();v6Selected=key;el.setPointerCapture(e.pointerId);var rect=el.parentElement.getBoundingClientRect(),start={x:e.clientX,y:e.clientY,p:v6Clone(v6Draft[key])};el.classList.add('v6-dragging');function move(ev){v6SetPos(el,key,start.p.x+(ev.clientX-start.x)/rect.width*100,start.p.y+(ev.clientY-start.y)/rect.height*100);}function end(){el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',end);el.classList.remove('v6-dragging');v6Say('Posición cambiada. Pulsa Guardar para conservarla.');}el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);});}
+function v6RenderBox(box,ns,applyFilter){
+ if(!box)return;
+ if(v6Edit&&box.querySelector('.v6-dragging'))return;
+ box.className='ba-plano v6-floor '+(baZonaActual==='terraza'?'v6-terrace ':'')+(v6Edit&&role==='admin'?'v6-editing':'');
+ box.replaceChildren();
+ var room=document.createElement('span');room.className='v6-room-label';room.textContent=baZonaActual==='terraza'?'TERRAZA · EXTERIOR':baZonaActual==='barra'?'ZONA DE BARRA':'SALA · INTERIOR';box.appendChild(room);
+ if(baZonaActual!=='terraza'){var bar=document.createElement('div');bar.className='v6-bar '+(baZonaActual==='barra'?'v6-bar-large':'');bar.innerHTML='<span>BARRA</span><i></i><i></i><i></i>';v6Node(bar,'bar');box.appendChild(bar);}
+ if(baZonaActual==='local'){['billiard','foosball'].forEach(function(k){var game=document.createElement('div');game.className='v6-game v6-'+k;game.innerHTML=k==='billiard'?'<span>BILLAR</span><i class="v6-cue"></i><i class="v6-ball"></i>':'<span>FUTBOLÍN</span><i></i><i></i><i></i>';v6Node(game,k);box.appendChild(game);});}
+ ['plant1','plant2'].forEach(function(k){var p=document.createElement('div');p.className='v6-plant';p.innerHTML='<svg viewBox="0 0 64 80" aria-hidden="true"><ellipse cx="32" cy="73" rx="19" ry="5" fill="#0003"/><path d="M18 48h28l-5 25H23z" fill="#b97c56"/><path d="M32 52C5 40 3 13 12 8c17 8 22 22 20 44" fill="#3a8c60"/><path d="M32 54C57 43 61 18 54 9 35 12 29 33 32 54" fill="#58ab71"/><path d="M31 54C16 25 23 3 31 2c15 15 15 34 0 52" fill="#79b985"/></svg>';v6Node(p,k);box.appendChild(p);});
+ var visible=0;
+ ns.forEach(function(n,i){var d=baDatosMesa(n),busy=d.pedidos.length>0;
+  if(!v6Edit&&applyFilter&&((baMesaFiltro==='libres'&&busy)||(baMesaFiltro==='ocupadas'&&!busy)))return;
+  visible++;
+  var b=document.createElement('button');b.type='button';b.className='v6-table '+(busy?'v6-busy':'v6-free')+(d.cuenta?' v6-bill':'')+(baZonaActual==='barra'?' v6-stool':'')+(baZonaActual==='terraza'?' v6-round':'');
+  b.setAttribute('aria-label',n+', '+(d.cuenta?'pide cuenta':busy?'ocupada':'libre')+', '+fp(d.total));
+  var title=document.createElement('b');title.textContent=n;
+  var sum=document.createElement('span');sum.textContent=busy?fp(d.total):'Libre';
+  var status=document.createElement('small');status.textContent=d.cuenta?'▤ Cuenta':busy?(d.pendientes?'● Por servir':'● Ocupada'):'● Libre';
+  b.append(title,sum,status);
+  b.onclick=function(){if(!v6Edit)abrirMesaBarra(n);};
+  v6Node(b,n,i);box.appendChild(b);
+ });
+ if(!visible){var empty=document.createElement('p');empty.className='v6-empty';empty.textContent=baZonaActual==='terraza'?'Terraza sin mesas asignadas. Añade mesas y colócalas desde Admin.':'No hay mesas en este filtro.';box.appendChild(empty);}
+ var door=document.createElement('span');door.className='v6-door';door.textContent=baZonaActual==='terraza'?'ACCESO AL LOCAL':'ENTRADA';box.appendChild(door);
 }
 function abrirMesaBarra(n){if(role!=='barra')return;baMesaActual=n;document.getElementById('baMesaPantalla').classList.remove('hidden');document.body.classList.add('ba-detalle-abierto');renderDetalleMesaBarra();document.getElementById('baVolverPlano').focus();}
 function cerrarMesaBarra(){baMesaActual=null;document.getElementById('baMesaPantalla').classList.add('hidden');document.body.classList.remove('ba-detalle-abierto');renderPlanoBarra();}
@@ -1717,7 +1786,7 @@ function baCobrarPedido(){if(baMesaActual===null)return;cobrarMesa(encodeURIComp
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&baMesaActual!==null&&!Array.from(document.querySelectorAll('.modal-overlay')).some(function(m){return !m.classList.contains('hidden');}))cerrarMesaBarra();});
 
 function baZonaMesa(n){var m=mesaByName(n),z=m&&(m.zonaPlano||m.zona);if(['barra','local','terraza'].indexOf(z)>=0)return z;if(/terraza/i.test(n))return 'terraza';if(/barra/i.test(n))return 'barra';return 'local';}
-function baZona(z){if(['barra','local','terraza'].indexOf(z)<0)return;baZonaActual=z;baMesaFiltro='todas';renderPlanoBarra();}
+function baZona(z){if(['barra','local','terraza'].indexOf(z)<0)return;if(v6Edit){v6Say('Guarda o cancela la edición antes de cambiar de zona.');return;}baZonaActual=z;baMesaFiltro='todas';renderPlanoBarra();}
 function baCambiarZona(z){var m=mesaByName(baMesaActual);if(!m||!requireFB())return;if(['barra','local','terraza'].indexOf(z)<0)return;db.ref('mesas/'+m.id).update({zonaPlano:z}).then(function(){baZonaActual=z;renderPlanoBarra();showToast('Zona de la mesa guardada','success');}).catch(function(){showToast('No se pudo guardar la zona','error');});}
 
 </script>

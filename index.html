@@ -1677,6 +1677,7 @@ try{var rf=document.getElementById('resFecha');if(rf)rf.value=new Date().toISOSt
 setInterval(function(){try{if(role==='admin'||role==='superadmin'||role==='barra')renderReservas();}catch(e){}},60000);
 /* Plano y cuenta de mesas. Copia v5, sin alterar la lógica de cobro existente. */
 var baMesaActual=null,baMesaFiltro='todas',baZonaActual='local';
+function baEtiquetaMesa(n){return /^mesa\b/i.test(String(n))?String(n):'Mesa '+n;}
 function baPedidosMesa(n){return orders.filter(function(o){return o.mesa===n&&o.estado!=='PAGADO'&&o.estado!=='CANCELADO';});}
 function baDatosMesa(n){var ps=baPedidosMesa(n),a={total:0};ps.forEach(function(o){accImporte(a,o);});return {pedidos:ps,total:a.total,pendientes:ps.filter(function(o){return o.estado!=='ENTREGADO';}).length,cuenta:alerts.some(function(x){return x.mesa===n&&x.tipo==='PEDIR_CUENTA'&&!x.atendida;})};}
 function baNombresMesas(){var ns=mesas.filter(function(m){return m.activo!==false;}).map(function(m){return m.nombre;});orders.forEach(function(o){if(o.estado!=='PAGADO'&&o.estado!=='CANCELADO'&&o.mesa&&ns.indexOf(o.mesa)<0)ns.push(o.mesa);});return ns;}
@@ -1690,7 +1691,7 @@ function renderPlanoBarra(){
  box.replaceChildren();var visibles=0;
  ns.forEach(function(n){var d=baDatosMesa(n),busy=d.pedidos.length>0;if(baMesaFiltro==='libres'&&busy||baMesaFiltro==='ocupadas'&&!busy)return;visibles++;
   var b=document.createElement('button');b.type='button';b.className='ba-mesa '+(busy?'ocupada':'libre')+(d.cuenta?' pide-cuenta':'');b.onclick=function(){abrirMesaBarra(n);};
-  b.setAttribute('aria-label','Mesa '+n+', '+(busy?'ocupada, '+fp(d.total):'libre'));
+  b.setAttribute('aria-label',baEtiquetaMesa(n)+', '+(busy?'ocupada, '+fp(d.total):'libre'));
   var top=document.createElement('span');top.className='ba-mesa-estado';top.textContent=d.cuenta?'Pide cuenta':(busy?'Ocupada':'Libre');
   var tablero=document.createElement('span');tablero.className='ba-tablero';var name=document.createElement('b');name.textContent=n;tablero.appendChild(name);
   var sub=document.createElement('span');sub.className='ba-mesa-total';sub.textContent=busy?fp(d.total):'Abrir mesa';
@@ -1704,7 +1705,7 @@ function abrirMesaBarra(n){if(role!=='barra')return;baMesaActual=n;document.getE
 function cerrarMesaBarra(){baMesaActual=null;document.getElementById('baMesaPantalla').classList.add('hidden');document.body.classList.remove('ba-detalle-abierto');renderPlanoBarra();}
 function renderDetalleMesaBarra(){
  if(baMesaActual===null)return;var n=baMesaActual,d=baDatosMesa(n),m=mesaByName(n);
- document.getElementById('baMesaTitulo').textContent='Mesa '+n;
+ document.getElementById('baMesaTitulo').textContent=baEtiquetaMesa(n);
  document.getElementById('baMesaSubtitulo').textContent=(m&&m.camarero?'Atiende: '+m.camarero+' · ':'')+(d.pedidos.length?d.pedidos.length+' comandas abiertas':'Mesa libre');
  document.getElementById('baMesaTotal').textContent=fp(d.total);
  document.getElementById('baMesaAviso').textContent=d.pendientes?'Hay '+d.pendientes+' comandas por entregar. El cobro se habilita al entregarlas.':(d.pedidos.length?'Todo entregado. Puedes cobrar o añadir otro pedido.':'Añade el primer pedido para abrir la cuenta.');

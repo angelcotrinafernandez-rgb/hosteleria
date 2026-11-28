@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reservar mesa</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f1412;color:#eee;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;max-width:520px;margin:auto}
+h1{font-size:22px;margin:8px 0 4px}p.s{color:#9aa;margin:0 0 14px;font-size:14px}
+.card{background:#18201c;border:1px solid #2a3731;border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:#9aa;margin:10px 0 4px}
+input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #33443c;background:#0f1412;color:#fff;font-size:16px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{padding:12px 4px;border-radius:10px;border:1px solid #3a6a52;background:#1d3a2c;color:#fff;font-size:16px;font-weight:700;text-align:center;cursor:pointer}
+.slot.sel{background:#d4a73a;color:#111;border-color:#d4a73a}.slot.off{background:#2a1a1a;border-color:#5a2a2a;color:#a77;text-decoration:line-through;cursor:not-allowed}
+.btn{width:100%;padding:15px;border:0;border-radius:12px;background:#d4a73a;color:#111;font-size:17px;font-weight:800;margin-top:14px;cursor:pointer}
+.btn:disabled{opacity:.5}.msg{margin-top:10px;padding:10px;border-radius:10px;font-size:14px}.warn{background:#3a2a10;color:#ffd58a}.ok{background:#173a26;color:#9fe3b6}
+.stepper{display:flex;align-items:center;gap:14px}.stepper button{width:44px;height:44px;border-radius:50%;border:1px solid #3a6a52;background:#1d3a2c;color:#fff;font-size:22px}.stepper b{font-size:22px;min-width:30px;text-align:center}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-weight:700;font-size:13px}
+</style></head><body>
+<h1>📅 Reservar mesa</h1><p class="s">Demo · Bar Latino (datos ficticios)</p>
+<div id="mine"></div>
+<div id="form">
+<div class="card"><label style="margin-top:0">Día</label><input type="date" id="fecha"><label>Personas</label>
+<div class="stepper"><button onclick="per(-1)">−</button><b id="per">2</b><button onclick="per(1)">+</button></div></div>
+<div class="card"><label style="margin-top:0">Hora</label><div id="slots" class="slots"></div><div id="slotmsg"></div></div>
+<div class="card"><label style="margin-top:0">Nombre</label><input id="nom" placeholder="Tu nombre" autocomplete="name"><label>Teléfono</label><input id="tel" type="tel" placeholder="Teléfono" autocomplete="tel"><label>Notas (opcional)</label><textarea id="notas" rows="2" placeholder="Cumpleaños, trona, terraza..."></textarea>
+<button class="btn" id="go" onclick="enviar()">Pedir mesa</button><div id="res"></div></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="res-lib.js"></script>
+<script>
+var personas=2,hora='',cfg=null,ocupa=[];
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+var f=document.getElementById('fecha');var hoy=new Date();f.min=iso(hoy);f.value=iso(hoy);var mx=new Date();mx.setDate(mx.getDate()+60);f.max=iso(mx);
+f.onchange=cargar;
+function per(n){personas=Math.max(1,Math.min(20,personas+n));document.getElementById('per').textContent=personas;pintar();}
+function cargar(){hora='';HR.getConfig().then(function(c){cfg=c;return HR.ocupaDia(f.value);}).then(function(o){ocupa=o;pintar();}).catch(function(e){document.getElementById('slotmsg').innerHTML='<div class="msg warn">No se pudo cargar la disponibilidad.</div>';});}
+function pintar(){if(!cfg)return;var now=new Date(),esHoy=f.value===iso(now),nm=now.getHours()*60+now.getMinutes();var h='',libres=0,total=0;
+HR.TURNOS.forEach(function(t){t[1].forEach(function(s){if(esHoy&&HR.toMin(s)<=nm+30)return;total++;var ok=HR.hayHueco(ocupa,s,personas,cfg);if(ok)libres++;h+='<div class="slot'+(ok?'':' off')+(hora===s?' sel':'')+'" onclick="elegir(\''+s+'\','+ok+')">'+s+'</div>';});});
+document.getElementById('slots').innerHTML=h||'<div class="msg warn">Ya no quedan horas hoy. Prueba otro día.</div>';
+document.getElementById('slotmsg').innerHTML=(total&&!libres)?'<div class="msg warn">Ese día no queda mesa para '+personas+' personas. Prueba otro día o llámanos.</div>':'';}
+function elegir(s,ok){if(!ok){document.getElementById('slotmsg').innerHTML='<div class="msg warn">A las '+s+' no hay mesa para '+personas+' personas. Elige otra hora libre.</div>';return;}hora=s;document.getElementById('slotmsg').innerHTML='';pintar();}
+function enviar(){var r=document.getElementById('res'),n=document.getElementById('nom').value.trim(),t=document.getElementById('tel').value.trim();
+if(!hora){r.innerHTML='<div class="msg warn">Elige una hora.</div>';return;}if(n.length<2){r.innerHTML='<div class="msg warn">Pon tu nombre.</div>';return;}if(t.replace(/\D/g,'').length<9){r.innerHTML='<div class="msg warn">Pon un teléfono válido.</div>';return;}
+var b=document.getElementById('go');b.disabled=true;
+HR.ocupaDia(f.value).then(function(o){ocupa=o;if(!HR.hayHueco(o,hora,personas,cfg)){pintar();hora='';b.disabled=false;r.innerHTML='<div class="msg warn">Justo se ha ocupado esa hora. Elige otra.</div>';throw 'full';}
+return HR.crear({nombre:n,telefono:t,fecha:f.value,hora:hora,personas:personas,notas:document.getElementById('notas').value.trim(),origen:'web'});}).then(function(d){localStorage.setItem('hostres_mine',d.id);r.innerHTML='';b.disabled=false;mostrar();}).catch(function(e){if(e!=='full'){b.disabled=false;r.innerHTML='<div class="msg warn">No se pudo enviar. Inténtalo de nuevo.</div>';}});}
+var T={pendiente:['⏳ Pendiente de confirmar','#3a2a10','#ffd58a'],confirmada:['✔ Reserva confirmada','#173a26','#9fe3b6'],sentada:['🪑 Ya estáis en mesa','#173a26','#9fe3b6'],cancelada:['✕ Cancelada','#3a1a1a','#f1a0a0'],noshow:['✕ Cancelada','#3a1a1a','#f1a0a0']};
+function mostrar(){var id=localStorage.getItem('hostres_mine');if(!id)return;HR.onReserva(id,function(r){if(localStorage.getItem('hostres_mine')!==id)return;var m=document.getElementById('mine');if(!r){m.innerHTML='';return;}var t=T[r.estado]||T.pendiente;
+m.innerHTML='<div class="card"><div class="tag" style="background:'+t[1]+';color:'+t[2]+'">'+t[0]+'</div><p style="margin:10px 0 2px;font-size:18px"><b>'+r.fecha+' · '+r.hora+'</b></p><p style="margin:0;color:#9aa">'+r.personas+' personas · '+String(r.nombre).replace(/</g,'&lt;')+'</p>'+(r.estado==='pendiente'?'<p style="color:#9aa;font-size:13px">El local la confirmará en breve. Esta pantalla se actualiza sola.</p>':'')+(r.estado==='pendiente'||r.estado==='confirmada'?'<button class="btn" style="background:#2a1a1a;color:#f1a0a0;margin-top:8px" onclick="cancelar(\''+r.id+'\')">Cancelar mi reserva</button>':'')+'<button class="btn" style="background:#1d3a2c;color:#fff;margin-top:8px" onclick="nueva()">Hacer otra reserva</button></div>';document.getElementById('form').style.display='none';});}
+function cancelar(id){if(confirm('¿Cancelar la reserva?'))HR.estado(id,'cancelada').then(cargar);}
+function nueva(){localStorage.removeItem('hostres_mine');document.getElementById('mine').innerHTML='';document.getElementById('form').style.display='';cargar();}
+cargar();mostrar();
+</script></body></html>

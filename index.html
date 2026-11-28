@@ -533,6 +533,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     <div class="tabs">
       <div class="tab active" data-tab="co-inicio" onclick="switchCoTab('co-inicio')">🏠 Inicio</div>
       <div class="tab" data-tab="co-pedidos" onclick="switchCoTab('co-pedidos')">👨‍🍳 Pedidos</div>
+      <div class="tab" data-tab="co-servido" onclick="switchCoTab('co-servido')">📜 Servido</div>
     </div>
     <div id="co-inicio" class="co-tab-content">
       <div class="card">
@@ -559,6 +560,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     <div id="co-pedidos" class="co-tab-content hidden">
       <div class="cocina-header"><h1>👨‍🍳 PEDIDOS EN COCINA</h1><p style="font-size:16px;opacity:.9;">Tiempo real</p></div>
       <div class="cocina-orders" id="cocinaOrders"><div class="empty" style="grid-column:1/-1;">Esperando pedidos...</div></div>
+    </div>
+    <div id="co-servido" class="co-tab-content hidden">
+      <div class="card"><h3>📜 Servido (historial de cocina)</h3>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;"><input type="date" class="input" id="svFecha" style="width:auto;" onchange="renderServido()"/><button class="btn btn-grey btn-sm" onclick="svHoy()">Hoy</button></div>
+        <div id="svResumen" style="margin-bottom:12px;"></div>
+        <div id="svList"><div class="empty">Sin servidos</div></div>
+      </div>
     </div>
   </section>
 
@@ -1183,7 +1191,7 @@ function applyRole(){
   else if(role==='superadmin'){if(!sessionStorage.getItem('superadmin_auth')){localStorage.removeItem(KEY_ROLE);mostrarLoginAdmin();return;}var e5=document.getElementById('superadminPanel');if(e5)e5.classList.remove('hidden');requestWakeLock();}
   checkAudioState();
 }
-function renderAdminNotifs(){var box=document.getElementById('adminNotifList');if(!box)return;var list=notifications.slice().sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).slice(0,30);if(!list.length){box.innerHTML='<div class="empty">Sin notificaciones</div>';return;}box.innerHTML=list.map(function(n){var cls=n.ack?'ack':(n.escalado?'pending':'');var estado=n.ack?'✅ '+esc(n.ackBy):(n.escalado?'⚠️ ESCALADA':'⏳ Pendiente');return'<div class="notif-item '+cls+'"><div class="nhead"><b>'+esc(n.tipo)+'</b><span class="ntime">'+ftime(n.createdAt)+'</span></div><div class="nbody">Mesa '+esc(n.mesa||'-')+' · '+esc(n.emisorNombre||n.emisorRol)+' → '+esc(n.destinatarioRol)+'\n'+esc(n.items||n.extra||'')+'</div><div class="ntime">'+estado+'</div></div>';}).join('');}
+function renderAdminNotifs(){var box=document.getElementById('adminNotifList');if(!box)return;var list=notifications.slice().sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).slice(0,30);if(!list.length){box.innerHTML='<div class="empty">Sin notificaciones</div>';return;}box.innerHTML=list.map(function(n){var cls=n.ack?'ack':(n.escalado?'pending':'');var estado=n.ack?'✅ '+esc(n.ackBy):(n.escalado?'⚠️ ESCALADA':'⏳ Pendiente');return'<div class="notif-item '+cls+'"><div class="nhead"><b>'+esc(n.tipo)+'</b><span class="ntime">'+ftime(n.createdAt)+'</span></div><div class="nbody">Mesa '+esc(n.mesa||'-')+' · '+esc(n.emisorNombre||n.emisorRol)+' → '+esc(n.destinatarioRol)+'\n'+esc(n.items||n.extra||'')+'</div><div class="ntime">'+estado+'</div>'+(n.tipo==='FALTA_ALGO'&&!n.ack?'<button class="btn btn-green btn-sm" style="margin-top:6px" onclick="marcarFaltaHecha(\''+n.id+'\')">\u2714 Ya pedido</button>':'')+'</div>';}).join('');}
 function verNotificacionesAdmin(){renderAdminNotifs();showToast('🔄 Actualizado','success');}
 function renderOrderCard(o){var cls=stClass(o.estado),badge='',dc=o.destino==='cocina'?'cocina':'barra';if(['PAGADO','CANCELADO'].indexOf(o.estado)===-1&&o.createdAtLocal){var m=Math.floor((Date.now()-o.createdAtLocal)/60000);if(m>=10){cls+=' age-red';badge='<span class="ageb" style="color:var(--red)">🔴 '+m+' min</span>';}else if(m>=5){cls+=' age-orange';badge='<span class="ageb" style="color:var(--gold)">🟠 '+m+' min</span>';}}var resp=mesaByName(o.mesa);var rt=(resp&&resp.camarero)?' · 👤 '+esc(resp.camarero):(o.camarero?' · 👤 '+esc(o.camarero):'');return'<div class="order '+cls+' '+dc+'"><div class="ohead"><span class="mesa-tag">🪑 '+esc(o.mesa||'S/M')+'</span><span class="otime">'+ftime(o.createdAtLocal)+badge+'</span></div><div class="oitems">'+escL(o.items||'')+'</div><div class="otime" style="margin-bottom:8px;">Resp:'+rt+'</div><div class="ofoot"><span class="st '+stClass(o.estado)+'">'+stLabel(o.estado)+'</span><div style="display:flex;gap:6px;flex-wrap:wrap;">'+botonesPara(o)+'</div></div></div>';}
 function botonesPara(o){var b='';if(role==='admin'||role==='superadmin')return '<span class="otime">👁️ Solo lectura</span>';if(o.estado==='RECIBIDO'&&puedeCambiar('EN_PREPARACION'))b+='<button class="btn btn-grey btn-sm" onclick="cambiarEstado(\''+o.id+'\',\'EN_PREPARACION\')">👨‍🍳 Preparar</button>';if(o.estado==='EN_PREPARACION'&&puedeCambiar('LISTO'))b+='<button class="btn btn-green btn-sm" onclick="cambiarEstado(\''+o.id+'\',\'LISTO\')">✅ Listo</button>';if((o.estado==='RECIBIDO'||o.estado==='EN_PREPARACION'||o.estado==='LISTO')&&puedeCambiar('ENTREGADO'))b+='<button class="btn btn-gold btn-sm" onclick="cambiarEstado(\''+o.id+'\',\'ENTREGADO\')">📦 Entregado</button>';if(puedeCancelar(o))b+='<button class="btn btn-red btn-sm" onclick="cancelarPedido(\''+o.id+'\')">❌</button>';if(b==='')b='<span class="otime">🔒 Sin acciones</span>';return b;}
@@ -1394,6 +1402,7 @@ function cambiarEstado(id,est){
   var previa=null;orders.forEach(function(x){if(x.id===id)previa=x;});
   db.ref('pedidos/'+id).update({estado:est,updatedAtLocal:nowLocal()}).then(function(){
     showToast('✅ '+stLabel(est),'success');
+    if((est==='LISTO'||est==='ENTREGADO')&&previa&&previa.destino==='cocina'){try{registrarServido(id,previa,est);}catch(e){}}
     if(est==='LISTO'&&previa&&previa.estado!=='LISTO'){
       var mN=previa.mesa||'S/M';var mO=mesaByName(mN);var cR=(mO&&mO.camarero)||previa.camarero||'';
       crearNotificacion({tipo:previa.destino==='cocina'?'COCINA_LISTO':'BARRA_LISTO',emisorRol:role,emisorNombre:myCamName||role,destinatarioRol:'camarero',destinatarioNombre:cR,mesa:mN,pedidoId:id,items:previa.items||'',extra:cR?('Asignado a: '+cR):'Sin camarero — todos avisados'});
@@ -1471,6 +1480,7 @@ function descargarBackup(){if(!requireFB())return;showToast('⏳ Generando...','
 // ============================================================
 function subscribeAll(){
   if(!firebaseReady||!db)return;
+  if(role==='cocina'||role==='admin'||role==='superadmin'){db.ref('servidos').on('value',function(s){var d=s.val()||{};servidos=Object.keys(d).map(function(k2){var o=d[k2];o.id=k2;return o;});renderServido();});}
   db.ref('mesas').on('value',function(s){var d=s.val()||{};mesas=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});mesas.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});renderAll();});
   if(role==='barra'||role==='admin'){db.ref('planoPosiciones').on('value',function(s){planoPos=v6Validate(s.val());renderPlanoBarra();});}
   db.ref('camareros').on('value',function(s){var d=s.val()||{};camareros=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});camareros.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='camarero'&&!myCamName)showCamModal();});
@@ -1486,7 +1496,7 @@ function subscribeAll(){
     db.ref('alertas').on('value',function(s){var d=s.val()||{};alerts=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});renderAll();});
     db.ref('pagos').on('value',function(s){var d=s.val()||{};pagos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});pagos.sort(function(a,b){return(b.timestamp||0)-(a.timestamp||0);});renderAll();});
     db.ref('turnos').on('value',function(s){var d=s.val()||{};turnos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});renderAll();});
-    db.ref('notificaciones').on('value',function(s){var d=s.val()||{};notifications=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});notifications.sort(function(a,b){return(a.createdAt||0)-(b.createdAt||0);});if(role==='admin'||role==='superadmin')renderAdminNotifs();procesarNotificaciones();notifications.forEach(function(n){if(n.ack&&currentNotifOverlay&&currentNotifOverlay.id===n.id){currentNotifOverlay=null;document.getElementById('notifOverlay').classList.add('hidden');showToast('✅ Otra persona ya la confirmó','success');}});});
+    db.ref('notificaciones').on('value',function(s){var d=s.val()||{};notifications=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});notifications.sort(function(a,b){return(a.createdAt||0)-(b.createdAt||0);});if(role==='admin'||role==='superadmin'){renderAdminNotifs();try{faltaAvisoAdmin();}catch(e){}}procesarNotificaciones();notifications.forEach(function(n){if(n.ack&&currentNotifOverlay&&currentNotifOverlay.id===n.id){currentNotifOverlay=null;document.getElementById('notifOverlay').classList.add('hidden');showToast('✅ Otra persona ya la confirmó','success');}});});
   }
   if(role==='superadmin'){
     db.ref('locales').on('value',function(s){var d=s.val()||{};locales=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});renderSuperadmin();});
@@ -1726,6 +1736,27 @@ function guardarAforoRes(){var v=Number(document.getElementById('resAforo').valu
 function imprimirQrReservas(){var w=window.open('','_blank');if(!w){showToast('\u26A0\uFE0F Popups','error');return;}var c=document.querySelector('#qrReservas canvas'),src=c?c.toDataURL():'';w.document.write('<body style="text-align:center;font-family:sans-serif"><h1>Reserva tu mesa</h1><img src="'+src+'" width="320"><p>Escanea con el m\u00F3vil</p></body>');w.document.close();setTimeout(function(){w.print();},300);}
 try{var rfb=document.getElementById('resFechaB');if(rfb)rfb.value=new Date().toISOString().slice(0,10);}catch(e){}
 setTimeout(initQrReservas,1500);
+
+/* ---- Falta algo + Servido (cocina) ---- */
+var servidos=[];
+function abrirFalta(){var m=document.getElementById('faltaModal');m.style.display='flex';document.getElementById('faltaTexto').value='';setTimeout(function(){document.getElementById('faltaTexto').focus();},50);}
+function cerrarFalta(){document.getElementById('faltaModal').style.display='none';}
+function faltaChip(t){var i=document.getElementById('faltaTexto');i.value=t;i.focus();}
+function enviarFalta(){var t=document.getElementById('faltaTexto').value.trim();if(!t){showToast('\u26A0\uFE0F Escribe qu\u00E9 falta','error');return;}
+  crearNotificacion({tipo:'FALTA_ALGO',emisorRol:role,emisorNombre:myCamName||role,destinatarioRol:'admin',destinatarioNombre:'',mesa:'',extra:t,items:t}).then(function(id){if(id){cerrarFalta();showToast('\u2705 Aviso enviado al administrador','success');avisoExterno('Falta algo ('+role+'): '+t);}else showToast('\u26A0\uFE0F No se pudo enviar','error');});}
+function avisoExterno(txt){try{if(window.TELEGRAM_RELAY_URL){fetch(window.TELEGRAM_RELAY_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texto:txt,bar:(document.title||'')})}).catch(function(){});}}catch(e){}}
+var faltaVistas=null;function faltaAvisoAdmin(){var fa=notifications.filter(function(n){return n.tipo==='FALTA_ALGO'&&!n.ack;});if(faltaVistas===null){faltaVistas={};fa.forEach(function(n){faltaVistas[n.id]=1;});return;}fa.forEach(function(n){if(!faltaVistas[n.id]){faltaVistas[n.id]=1;showToast('\u26A0\uFE0F FALTA: '+(n.extra||'')+' ('+(n.emisorRol||'')+')','error');try{playSound('nuevo_pedido');}catch(e){}}});}
+function marcarFaltaHecha(id){ackNotificacion(id);}
+function svHoy(){var d=document.getElementById('svFecha');if(d)d.value=new Date().toISOString().slice(0,10);renderServido();}
+function registrarServido(id,previa,est){var hoy=new Date().toISOString().slice(0,10);var ref=db.ref('servidos/'+id);ref.once('value').then(function(s){var o=s.val()||{};var up={pedidoId:id,mesa:previa.mesa||'S/M',items:previa.items||'',estado:est,fecha:o.fecha||hoy,hora:o.hora||new Date().toTimeString().slice(0,5),porRol:o.porRol||role,porNombre:o.porNombre||(myCamName||role),createdAtLocal:o.createdAtLocal||nowLocal(),updatedAtLocal:nowLocal()};if(est==='ENTREGADO')up.entregadoAt=nowLocal();return ref.update(up);});}
+function renderServido(){var box=document.getElementById('svList');if(!box)return;var f=document.getElementById('svFecha');var fecha=f&&f.value?f.value:new Date().toISOString().slice(0,10);
+  var list=servidos.filter(function(o){return o.fecha===fecha;}).sort(function(a,b){return String(b.hora||'').localeCompare(String(a.hora||''));});
+  var cnt={};list.forEach(function(o){String(o.items||'').split('\n').forEach(function(l){var m=l.match(/^\s*(\d+)\s*x\s*(.+?)\s*\(/);if(m){cnt[m[2]]=(cnt[m[2]]||0)+Number(m[1]);}});});
+  var rs=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).map(function(k){return '<span class="st listo" style="margin:2px;display:inline-block;">'+esc(k)+' \u00D7 '+cnt[k]+'</span>';}).join('');
+  var sr=document.getElementById('svResumen');if(sr)sr.innerHTML=list.length?'<div class="otime" style="margin-bottom:6px;">'+list.length+' pedidos servidos \u00B7 total por plato:</div>'+rs:'';
+  box.innerHTML=list.length?list.map(function(o){return '<div class="order listo cocina"><div class="ohead"><span class="mesa-tag">\uD83E\uDE91 '+esc(o.mesa||'S/M')+'</span><span class="otime">'+esc(o.hora||'')+' \u00B7 '+(o.estado==='ENTREGADO'?'\uD83D\uDCE6 Entregado':'\u2705 Listo')+' \u00B7 '+esc(o.porNombre||'')+'</span></div><div class="oitems">'+escL(o.items||'')+'</div></div>';}).join(''):'<div class="empty">Sin servidos este d\u00EDa</div>';}
+try{var sf=document.getElementById('svFecha');if(sf)sf.value=new Date().toISOString().slice(0,10);}catch(e){}
+window.addEventListener('load',function(){try{if(role==='cocina'||role==='barra'){document.getElementById('faltaBtn').style.display='block';}}catch(e){}});
 try{initAlergenosUI();}catch(e){}
 try{var rf=document.getElementById('resFecha');if(rf)rf.value=new Date().toISOString().slice(0,10);}catch(e){}
 setInterval(function(){try{if(role==='admin'||role==='superadmin'||role==='barra')renderReservas();}catch(e){}},60000);
@@ -1815,6 +1846,12 @@ function baZona(z){if(['barra','local','terraza'].indexOf(z)<0)return;if(v6Edit)
 function baCambiarZona(z){var m=mesaByName(baMesaActual);if(!m||!requireFB())return;if(['barra','local','terraza'].indexOf(z)<0)return;db.ref('mesas/'+m.id).update({zonaPlano:z}).then(function(){baZonaActual=z;renderPlanoBarra();showToast('Zona de la mesa guardada','success');}).catch(function(){showToast('No se pudo guardar la zona','error');});}
 
 </script>
+<button id="faltaBtn" class="btn btn-orange" style="display:none;position:fixed;left:12px;bottom:12px;z-index:900;box-shadow:0 4px 14px rgba(0,0,0,.5);" onclick="abrirFalta()">⚠️ Falta algo</button>
+<div id="faltaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;padding:16px;"><div class="card" style="max-width:420px;width:100%;">
+<h3>⚠️ Falta algo</h3><p class="otime" style="margin-bottom:8px;">Avisa al administrador (queda un barril, hay que pedir...)</p>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><button class="btn btn-grey btn-sm" onclick="faltaChip('Barril de cerveza')">🍺 Barril</button><button class="btn btn-grey btn-sm" onclick="faltaChip('Hielo')">🧊 Hielo</button><button class="btn btn-grey btn-sm" onclick="faltaChip('Pan')">🥖 Pan</button><button class="btn btn-grey btn-sm" onclick="faltaChip('Refrescos')">🥤 Refrescos</button><button class="btn btn-grey btn-sm" onclick="faltaChip('Gas / butano')">🔥 Gas</button></div>
+<input class="input" id="faltaTexto" placeholder="Qué falta (ej. queda 1 barril de cerveza)" style="margin-bottom:10px;"/>
+<div style="display:flex;gap:8px;"><button class="btn btn-grey" onclick="cerrarFalta()" style="flex:1">Cancelar</button><button class="btn btn-orange" onclick="enviarFalta()" style="flex:2">📣 Avisar al admin</button></div></div></div>
 </body>
 </html>
 

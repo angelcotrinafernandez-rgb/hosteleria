@@ -427,6 +427,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="card"><h3>🧾 Historial de arqueos (turnos cerrados)</h3><div id="cajaHistorial"><div class="empty">Sin turnos cerrados</div></div></div>
     </div>
     <div id="ad-reservas" class="ad-tab-content hidden">
+      <div class="card"><h3>📱 QR para reservar mesa</h3>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><div id="qrReservas" style="background:#fff;padding:10px;border-radius:10px;"></div>
+        <div style="flex:1;min-width:200px;font-size:13px;color:var(--t2);">El cliente escanea, elige día, personas y hora libre, y la reserva aparece aquí abajo.<br><a id="qrResLink" href="#" target="_blank" style="color:var(--gold);word-break:break-all;"></a><br><button class="btn btn-grey btn-sm" style="margin-top:8px" onclick="imprimirQrReservas()">🖨️ Imprimir QR</button></div></div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;">Mesas para reservas: <input class="input" id="resAforo" type="number" min="1" style="width:80px"/> <button class="btn btn-grey btn-sm" onclick="guardarAforoRes()">Guardar</button></div></div>
       <div class="card"><h3>📅 Reservas</h3>
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;"><input type="date" class="input" id="resFecha" style="width:auto;" onchange="renderReservas()"/><button class="btn btn-grey btn-sm" onclick="resHoy()">Hoy</button></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="resNombre" placeholder="Nombre"/><input class="input" id="resTel" type="tel" placeholder="Teléfono"/></div>
@@ -612,6 +616,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="card"><h3>💰 Cuentas pendientes</h3><div id="cuentasMesas"><div class="empty">Cargando...</div></div></div>
     </div>
     <div id="ba-reservas" class="ba-tab-content hidden">
+      <div class="card"><h3>📞 Reserva por teléfono</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="resNombreB" placeholder="Nombre"/><input class="input" id="resTelB" type="tel" placeholder="Teléfono"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="resFechaB" type="date"/><input class="input" id="resHoraB" type="time"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><input class="input" id="resPersonasB" type="number" min="1" step="1" placeholder="Personas"/><select class="input" id="resMesaB"><option value="">— Mesa (opcional) —</option></select></div>
+        <input class="input" id="resNotasB" placeholder="Notas" style="margin-bottom:10px;"/>
+        <button class="btn btn-gold btn-block" onclick="nuevaReserva('B')">➕ Guardar reserva</button></div>
       <div class="card"><h3>📅 Reservas de hoy</h3><div id="resListB"><div class="empty">Sin reservas hoy</div></div></div>
     </div>
     <div id="ba-nuevo" class="ba-tab-content hidden">
@@ -737,6 +747,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="res-lib.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script>
@@ -1463,7 +1476,7 @@ function subscribeAll(){
   db.ref('camareros').on('value',function(s){var d=s.val()||{};camareros=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});camareros.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='camarero'&&!myCamName)showCamModal();});
   if(role==='cliente'||role==='admin'||role==='barra'||role==='camarero'||role==='superadmin'){
     db.ref('productos').on('value',function(s){var d=s.val()||{};productos=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});productos.sort(function(a,b){return String(a.nombre||'').localeCompare(String(b.nombre||''));});if(role==='cliente')renderProdCliente();if(role==='admin'||role==='superadmin')renderProdsAdmin();if(role==='barra'){var mo=document.getElementById('manualOrderModal');if(mo&&!mo.classList.contains('hidden'))renderManualProds();}if(role==='camarero'){var co=document.getElementById('camareroOrderModal');if(co&&!co.classList.contains('hidden'))renderCamOrderProds();}});
-    db.ref('reservas').on('value',function(s){var d=s.val()||{};reservas=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});if(role==='admin'||role==='superadmin'||role==='barra')renderReservas();});
+    if(role==='admin'||role==='superadmin'||role==='barra'){var resPrimera=true;HR.onReservas(function(lista,cambios){reservas=lista;renderReservas();if(!resPrimera){cambios.forEach(function(c){if(c.type==='added'){var d=c.doc.data();if(d.origen==='web'){showToast('\uD83D\uDCC5 Nueva reserva web: '+d.nombre+' \u00B7 '+d.personas+' pax \u00B7 '+d.hora,'success');}}});}resPrimera=false;});}
   }
   if(role==='cliente'){
     db.ref('pedidos').on('value',function(s){var d=s.val()||{};var all=Object.keys(d).map(function(k){var o=d[k];o.id=k;return o;});clientOrders=all.filter(function(o){return o.clientId===clientId;});renderAll();});
@@ -1649,26 +1662,31 @@ function renderCaja(){
 
 // ---- Reservas ----
 function resHoy(){var d=document.getElementById('resFecha');if(d)d.value=new Date().toISOString().slice(0,10);renderReservas();}
-function nuevaReserva(){
-  if(!requireFB())return;
-  var f=(document.getElementById('resFecha').value)||new Date().toISOString().slice(0,10);
-  var n=document.getElementById('resNombre').value.trim();
-  var tel=document.getElementById('resTel').value.trim();
-  var h=document.getElementById('resHora').value;
-  var per=Number(document.getElementById('resPersonas').value)||0;
-  var mesa=document.getElementById('resMesa').value;
-  var notas=document.getElementById('resNotas').value.trim();
+function nuevaReserva(sfx){
+  sfx=sfx||'';
+  var g=function(i){var e=document.getElementById(i+sfx);return e?e.value:'';};
+  var f=g('resFecha')||new Date().toISOString().slice(0,10);
+  var n=g('resNombre').trim();
+  var tel=g('resTel').trim();
+  var h=g('resHora');
+  var per=Number(g('resPersonas'))||0;
+  var mesa=g('resMesa');
+  var notas=g('resNotas').trim();
   if(!n){showToast('\u26A0\uFE0F Nombre','error');return;}
   if(!h){showToast('\u26A0\uFE0F Hora','error');return;}
   if(!per){showToast('\u26A0\uFE0F Personas','error');return;}
-  var turno=h<'17:00'?'comida':'cena';
-  db.ref('reservas/'+newId()).set({nombre:n,telefono:tel,fecha:f,hora:h,turno:turno,personas:per,mesa:mesa,notas:notas,estado:'pendiente',createdAtLocal:nowLocal(),updatedAtLocal:nowLocal()}).then(function(){
-    document.getElementById('resNombre').value='';document.getElementById('resTel').value='';document.getElementById('resHora').value='';document.getElementById('resPersonas').value='';document.getElementById('resMesa').value='';document.getElementById('resNotas').value='';
-    showToast('\u2705 Reserva guardada','success');
-  });
+  HR.getConfig().then(function(cfg){
+    var lista=reservas.filter(function(r){return r.fecha===f;}).map(function(r){return {hora:r.hora,mesas:r.mesas,estado:r.estado};});
+    var sinHueco=!HR.hayHueco(lista,h,per,cfg);
+    if(sinHueco&&!confirm('Esa hora ya no tiene mesas libres seg\u00FAn el aforo. \u00BFGuardar igualmente?'))return;
+    return HR.crear({nombre:n,telefono:tel,fecha:f,hora:h,personas:per,mesa:mesa,notas:notas,estado:'confirmada',origen:'telefono'}).then(function(){
+      ['resNombre','resTel','resHora','resPersonas','resMesa','resNotas'].forEach(function(i){var e=document.getElementById(i+sfx);if(e)e.value='';});
+      showToast('\u2705 Reserva guardada (confirmada)','success');
+    });
+  }).catch(function(e){console.error(e);showToast('\u26A0\uFE0F No se pudo guardar','error');});
 }
-function reservaEstado(id,e){if(!requireFB())return;db.ref('reservas/'+id).update({estado:e,updatedAtLocal:nowLocal()});}
-function borrarReserva(id){if(!confirm('\u00BFEliminar reserva?'))return;db.ref('reservas/'+id).remove();}
+function reservaEstado(id,e){HR.estado(id,e).catch(function(){showToast('\u26A0\uFE0F Error','error');});}
+function borrarReserva(id){if(!confirm('\u00BFEliminar reserva?'))return;HR.borrar(id);}
 function esNoShow(r,hoy,ahoraMin){
   if(r.fecha!==hoy)return false;
   if(r.estado!=='pendiente'&&r.estado!=='confirmada')return false;
@@ -1685,13 +1703,13 @@ function reservaCard(r,esAdmin,hoy,ahoraMin){
   if(est==='pendiente'||est==='confirmada'){btns+='<button class="btn btn-gold btn-sm" onclick="reservaEstado(\''+r.id+'\',\'sentada\')">\uD83E\uDE91 Sentar</button>';btns+='<button class="btn btn-orange btn-sm" onclick="reservaEstado(\''+r.id+'\',\'noshow\')">No vino</button>';}
   if(est!=='cancelada'&&est!=='sentada')btns+='<button class="btn btn-grey btn-sm" onclick="reservaEstado(\''+r.id+'\',\'cancelada\')">\u2715</button>';
   if(esAdmin)btns+='<button class="btn btn-red btn-sm" onclick="borrarReserva(\''+r.id+'\')">\uD83D\uDDD1\uFE0F</button>';
-  return '<div class="reserva '+est+(ns?' noshow':'')+'"><span class="rhora">'+esc(r.hora||'')+'</span><div class="rinfo"><b>'+esc(r.nombre||'')+'</b> \u00B7 '+esc(String(r.personas||''))+' pax'+(r.mesa?' \u00B7 \uD83E\uDE91 '+esc(r.mesa):'')+'<div class="otime">'+(r.telefono?'\uD83D\uDCDE <a href="tel:'+esc(r.telefono)+'" style="color:var(--t2);">'+esc(r.telefono)+'</a> \u00B7 ':'')+tag+(r.notas?' \u00B7 \uD83D\uDCDD '+esc(r.notas):'')+'</div>'+(ns?'<div style="color:var(--red);font-weight:700;font-size:12px;">\u26A0\uFE0F POSIBLE NO-SHOW: pasan 15 min de la hora</div>':'')+'</div><div class="btns">'+btns+'</div></div>';
+  return '<div class="reserva '+est+(ns?' noshow':'')+'"><span class="rhora">'+esc(r.hora||'')+'</span><div class="rinfo"><b>'+esc(r.nombre||'')+'</b> \u00B7 '+esc(String(r.personas||''))+' pax'+(r.mesa?' \u00B7 \uD83E\uDE91 '+esc(r.mesa):'')+'<div class="otime">'+(r.telefono?'\uD83D\uDCDE <a href="tel:'+esc(r.telefono)+'" style="color:var(--t2);">'+esc(r.telefono)+'</a> \u00B7 ':'')+tag+(r.origen==='web'?' \u00B7 \uD83C\uDF10 Web':(r.origen==='telefono'?' \u00B7 \uD83D\uDCDE Tel\u00E9fono':''))+(r.notas?' \u00B7 \uD83D\uDCDD '+esc(r.notas):'')+'</div>'+(ns?'<div style="color:var(--red);font-weight:700;font-size:12px;">\u26A0\uFE0F POSIBLE NO-SHOW: pasan 15 min de la hora</div>':'')+'</div><div class="btns">'+btns+'</div></div>';
 }
 function renderReservas(){
   var hoy=new Date().toISOString().slice(0,10);
   var now=new Date();var ahoraMin=now.getHours()*60+now.getMinutes();
-  var sel=document.getElementById('resMesa');
-  if(sel){var cur=sel.value;sel.innerHTML='<option value="">\u2014 Mesa (opcional) \u2014</option>'+mesas.map(function(m){return '<option value="'+esc(m.nombre||'')+'">'+esc(m.nombre||'')+'</option>';}).join('');sel.value=cur;}
+  ['resMesa','resMesaB'].forEach(function(id){var sel=document.getElementById(id);
+  if(sel){var cur=sel.value;sel.innerHTML='<option value="">\u2014 Mesa (opcional) \u2014</option>'+mesas.map(function(m){return '<option value="'+esc(m.nombre||'')+'">'+esc(m.nombre||'')+'</option>';}).join('');sel.value=cur;}});
   var f=document.getElementById('resFecha');var fecha=f&&f.value?f.value:hoy;
   var list=reservas.filter(function(r){return r.fecha===fecha;}).sort(function(a,b){return String(a.hora||'').localeCompare(String(b.hora||''));});
   var box=document.getElementById('resList');
@@ -1701,6 +1719,13 @@ function renderReservas(){
   if(bB)bB.innerHTML=hoyL.length?hoyL.map(function(r){return reservaCard(r,false,hoy,ahoraMin);}).join(''):'<div class="empty">Sin reservas hoy</div>';
 }
 
+
+function urlReservar(){return location.origin+location.pathname.replace(/[^\/]*$/,'')+'reservar.html';}
+function initQrReservas(){try{var u=urlReservar();var l=document.getElementById('qrResLink');if(l){l.href=u;l.textContent=u;}var b=document.getElementById('qrReservas');if(b&&!b.firstChild&&window.QRCode)new QRCode(b,{text:u,width:150,height:150});HR.getConfig().then(function(c){var a=document.getElementById('resAforo');if(a&&!a.value)a.value=c.mesas;});}catch(e){}}
+function guardarAforoRes(){var v=Number(document.getElementById('resAforo').value)||0;if(v<1){showToast('\u26A0\uFE0F N\u00FAmero de mesas','error');return;}HR.setConfig({mesas:v}).then(function(){showToast('\u2705 Guardado','success');});}
+function imprimirQrReservas(){var w=window.open('','_blank');if(!w){showToast('\u26A0\uFE0F Popups','error');return;}var c=document.querySelector('#qrReservas canvas'),src=c?c.toDataURL():'';w.document.write('<body style="text-align:center;font-family:sans-serif"><h1>Reserva tu mesa</h1><img src="'+src+'" width="320"><p>Escanea con el m\u00F3vil</p></body>');w.document.close();setTimeout(function(){w.print();},300);}
+try{var rfb=document.getElementById('resFechaB');if(rfb)rfb.value=new Date().toISOString().slice(0,10);}catch(e){}
+setTimeout(initQrReservas,1500);
 try{initAlergenosUI();}catch(e){}
 try{var rf=document.getElementById('resFecha');if(rf)rf.value=new Date().toISOString().slice(0,10);}catch(e){}
 setInterval(function(){try{if(role==='admin'||role==='superadmin'||role==='barra')renderReservas();}catch(e){}},60000);

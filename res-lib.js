@@ -18,11 +18,12 @@ function crear(r){return ready.then(function(){return getConfig();}).then(functi
  var ref=fs.collection(C).doc(),b=fs.batch(),now=Date.now();
  var d=Object.assign({estado:'pendiente',origen:'web',mesa:'',notas:'',telefono:''},r);
  d.turno=d.hora<'17:00'?'comida':'cena';d.mesas=necesarias(d.personas,cfg);d.createdAtLocal=now;d.updatedAtLocal=now;
- b.set(ref,d);b.set(fs.collection(O).doc(ref.id),{fecha:d.fecha,hora:d.hora,mesas:d.mesas,estado:d.estado});
+ b.set(ref,d);b.set(fs.collection(O).doc(ref.id),{fecha:d.fecha,hora:d.hora,mesas:d.mesas,estado:d.estado,mesa:d.mesa||''});
  return b.commit().then(function(){d.id=ref.id;return d;});});}
 function estado(id,e){return ready.then(function(){var b=fs.batch();b.update(fs.collection(C).doc(id),{estado:e,updatedAtLocal:Date.now()});b.update(fs.collection(O).doc(id),{estado:e});return b.commit();});}
+function asignarMesa(id,mesa){return ready.then(function(){var b=fs.batch();b.update(fs.collection(C).doc(id),{mesa:mesa,updatedAtLocal:Date.now()});b.update(fs.collection(O).doc(id),{mesa:mesa||''});return b.commit();});}
 function borrar(id){return ready.then(function(){var b=fs.batch();b.delete(fs.collection(C).doc(id));b.delete(fs.collection(O).doc(id));return b.commit();});}
 function onReservas(cb){ready.then(function(){fs.collection(C).onSnapshot(function(s){cb(s.docs.map(function(d){var o=d.data();o.id=d.id;return o;}),s.docChanges());},function(e){console.error(e);});});}
 function onReserva(id,cb){ready.then(function(){fs.collection(C).doc(id).onSnapshot(function(d){cb(d.exists?Object.assign({id:d.id},d.data()):null);});});}
-window.HR={TURNOS:TURNOS,toMin:toMin,necesarias:necesarias,hayHueco:hayHueco,getConfig:getConfig,setConfig:setConfig,ocupaDia:ocupaDia,crear:crear,estado:estado,borrar:borrar,onReservas:onReservas,onReserva:onReserva,activa:activa};
+window.HR={TURNOS:TURNOS,toMin:toMin,necesarias:necesarias,hayHueco:hayHueco,getConfig:getConfig,setConfig:setConfig,ocupaDia:ocupaDia,crear:crear,estado:estado,borrar:borrar,asignarMesa:asignarMesa,onReservas:onReservas,onReserva:onReserva,activa:activa};
 })();
